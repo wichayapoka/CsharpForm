@@ -12,7 +12,10 @@ namespace WindowsFormsExample
         {
             InitializeComponent();
             // ListDirectory(treeView1, "C:\\Users\\NITRO 5 Spin I7\\Documents\\Computer Science\\ฝึกงาน\\WindowsFormsExample\\WindowsFormsExample");
+            string curDir = Directory.GetCurrentDirectory();
 
+            curDir = "..\\..";
+            ListDirectory(treeView1, curDir);
         }
 
         private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
@@ -51,25 +54,22 @@ namespace WindowsFormsExample
             
         }
 
-        private void Preview_Click(object sender, EventArgs e) //preview
+        private void Folder_Click(object sender, EventArgs e) //preview
         {
             
             string curDir = Directory.GetCurrentDirectory();
 
             curDir = "..\\..";
             string[] dirs = Directory.GetDirectories(curDir);
-            string[] files = Directory.GetFiles(curDir);
+            
             int k = dirs.Length;
             
             for (int i = 0; i < k; ++i)
             {
                 showpath.Items.Add(dirs[i]);
             }
-            foreach (string file in files)
-            {
-                showpath.Items.Add(file);
-            }
-            ListDirectory(treeView1, curDir);
+           
+            
 
         }
 
@@ -105,8 +105,16 @@ namespace WindowsFormsExample
             return directoryNode;
         }
 
+        private void files_Click(object sender, EventArgs e)
+        {
+            string curDir = Directory.GetCurrentDirectory();
 
-
-
+            curDir = "..\\..";
+            string[] files = Directory.GetFiles(curDir);
+            foreach (string file in files)
+            {
+                showpath.Items.Add(file);
+            }
+        }
     }
 }

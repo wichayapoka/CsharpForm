@@ -34,14 +34,15 @@
             this.Preview = new System.Windows.Forms.Button();
             this.showpath = new System.Windows.Forms.ListBox();
             this.treeView1 = new System.Windows.Forms.TreeView();
+            this.button2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button1
             // 
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.button1.Location = new System.Drawing.Point(171, 12);
+            this.button1.Location = new System.Drawing.Point(12, 48);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(129, 30);
+            this.button1.Size = new System.Drawing.Size(137, 30);
             this.button1.TabIndex = 0;
             this.button1.Text = "Write";
             this.button1.UseVisualStyleBackColor = true;
@@ -58,10 +59,10 @@
             // 
             // textBoxRead
             // 
-            this.textBoxRead.Location = new System.Drawing.Point(12, 48);
+            this.textBoxRead.Location = new System.Drawing.Point(12, 100);
             this.textBoxRead.Multiline = true;
             this.textBoxRead.Name = "textBoxRead";
-            this.textBoxRead.Size = new System.Drawing.Size(424, 390);
+            this.textBoxRead.Size = new System.Drawing.Size(424, 338);
             this.textBoxRead.TabIndex = 3;
             this.textBoxRead.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
@@ -72,9 +73,9 @@
             this.Preview.Name = "Preview";
             this.Preview.Size = new System.Drawing.Size(130, 30);
             this.Preview.TabIndex = 4;
-            this.Preview.Text = "Preview";
+            this.Preview.Text = "Folder";
             this.Preview.UseVisualStyleBackColor = true;
-            this.Preview.Click += new System.EventHandler(this.Preview_Click);
+            this.Preview.Click += new System.EventHandler(this.Folder_Click);
             // 
             // showpath
             // 
@@ -94,11 +95,23 @@
             this.treeView1.TabIndex = 7;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             // 
+            // button2
+            // 
+            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.button2.Location = new System.Drawing.Point(306, 49);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(130, 29);
+            this.button2.TabIndex = 8;
+            this.button2.Text = "Files";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.files_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.treeView1);
             this.Controls.Add(this.showpath);
             this.Controls.Add(this.Preview);
@@ -121,6 +134,7 @@
         private System.Windows.Forms.Button Preview;
         private System.Windows.Forms.ListBox showpath;
         private System.Windows.Forms.TreeView treeView1;
+        private System.Windows.Forms.Button button2;
     }
 }
 

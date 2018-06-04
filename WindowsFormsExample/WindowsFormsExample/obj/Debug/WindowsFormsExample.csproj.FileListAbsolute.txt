@@ -8,3 +8,13 @@ C:\Users\NITRO 5 Spin I7\Documents\Computer Science\ฝึกงาน\WindowsFo
 C:\Users\NITRO 5 Spin I7\Documents\Computer Science\ฝึกงาน\WindowsFormsExample\WindowsFormsExample\bin\Debug\WindowsFormsExample.pdb
 C:\Users\NITRO 5 Spin I7\Documents\Computer Science\ฝึกงาน\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.exe
 C:\Users\NITRO 5 Spin I7\Documents\Computer Science\ฝึกงาน\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.pdb
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\bin\Debug\WindowsFormsExample.exe.config
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\bin\Debug\WindowsFormsExample.exe
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\bin\Debug\WindowsFormsExample.pdb
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.csprojAssemblyReference.cache
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.Form1.resources
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.Properties.Resources.resources
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.csproj.GenerateResource.cache
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.csproj.CoreCompileInputs.cache
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.exe
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.pdb
