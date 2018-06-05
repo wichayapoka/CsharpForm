@@ -29,7 +29,8 @@ namespace WindowsFormsExample
             // string text_box = this.txtLineNum.Text;
 
             string input = Numinput.Text;
-            if (!string.IsNullOrEmpty(input))
+            if (!string.IsNullOrEmpty(input)) //not empty
+
             {
                 int number = Convert.ToInt32(input);
                 string text = "Hello";
