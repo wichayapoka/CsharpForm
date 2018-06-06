@@ -15,7 +15,7 @@ namespace WindowsFormsExample
     {
         
         int x, y; //location
-        bool drag; //mouseclick active or not
+        
         public Form2()
         {
             InitializeComponent();
@@ -27,7 +27,7 @@ namespace WindowsFormsExample
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e) //create blue panel
         {
             string input = Numpanel.Text;
             if (!string.IsNullOrEmpty(input)) //not empty
@@ -44,25 +44,16 @@ namespace WindowsFormsExample
                     this.panel1.Controls.Add(bluepanel);
                     
                 }
-                foreach (Control c in this.panel1.Controls)
-                {
-                    
-                    c.MouseUp += this.Panel1_MouseUp;
-                    c.MouseMove += this.Panel1_MouseMove;
-                    c.MouseDown += this.Panel1_MouseDown;
-                    
-                }
+                select_bluepanel(this.panel1.Controls);
             }
         }
 
         private void Panel1_MouseDown(object sender, MouseEventArgs e)
         {
-            Control c = sender as Control;
+            Control c = (Control)sender;
             
             if (e.Button == MouseButtons.Left)
             {
-                
-                drag = true;
                 x = e.X;
                 y = e.Y;
                 c.BackColor = Color.Yellow;
@@ -75,7 +66,7 @@ namespace WindowsFormsExample
         {
             Control c = sender as Control;
            
-            if (drag)
+            if (e.Button == MouseButtons.Left)
             {
                 c.Location = new Point(e.X + c.Left - x, e.Y + c.Top - y);
 
@@ -85,9 +76,7 @@ namespace WindowsFormsExample
 
         private void Panel1_MouseUp(object sender, MouseEventArgs e)
         {
-            Control c = sender as Control;
-            
-            drag = false;
+            Control c = sender as Control; 
             c.BackColor = Color.Blue;
             
         }
@@ -104,14 +93,10 @@ namespace WindowsFormsExample
             {
                 foreach (Control c in this.panel1.Controls)
                 {
-                    //size
-                    //w.Write(c.Width); 
-                    //w.Write(c.Height);
+                    
                     //location
                     w.Write(c.Left); //X
                     w.Write(c.Top); //Y
-                    
-                    
                 }
                 fs.Flush();
                     
@@ -121,6 +106,7 @@ namespace WindowsFormsExample
         private void button3_Click(object sender, EventArgs e)
         {
             this.panel1.Controls.Clear();
+            
             int left, top;
             
             using (FileStream fs = new FileStream("bluepoint.bin", FileMode.Open))
@@ -129,37 +115,31 @@ namespace WindowsFormsExample
                 
                 while (r.BaseStream.Position != r.BaseStream.Length)
                 { 
-
-                    Panel bluepanel = new Panel();
-                    //size1 = r.ReadInt32();
-                    //size2 = r.ReadInt32();
+                    Panel bluepanel = new Panel();     
+                    //location
                     left = r.ReadInt32();
                     top = r.ReadInt32();
+                    //show blue panels
                     bluepanel.Size = new Size(10,10);
                     bluepanel.BackColor = Color.Blue;
                     bluepanel.Location = new Point(left, top); //X,Y
-                    this.panel1.Controls.Add(bluepanel);
-                    
-
-
+                    this.panel1.Controls.Add(bluepanel);        
                 }
                 fs.Flush();
-                foreach (Control c in this.panel1.Controls)
-                {
-
-                    c.MouseUp += this.Panel1_MouseUp;
-                    c.MouseMove += this.Panel1_MouseMove;
-                    c.MouseDown += this.Panel1_MouseDown;
-
-                }
-
-
-
-
-
+                select_bluepanel(this.panel1.Controls);
             }
             
 
+        }
+        private void select_bluepanel(object sender) //mousedown, move and up for bluepanel only
+        {
+            foreach (Control c in this.panel1.Controls)
+            {
+                c.MouseUp += this.Panel1_MouseUp;
+                c.MouseMove += this.Panel1_MouseMove;
+                c.MouseDown += this.Panel1_MouseDown;
+
+            }
         }
        
 
