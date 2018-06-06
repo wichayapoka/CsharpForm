@@ -105,8 +105,8 @@ namespace WindowsFormsExample
                 foreach (Control c in this.panel1.Controls)
                 {
                     //size
-                    w.Write(c.Width); 
-                    w.Write(c.Height);
+                    //w.Write(c.Width); 
+                    //w.Write(c.Height);
                     //location
                     w.Write(c.Left); //X
                     w.Write(c.Top); //Y
@@ -121,27 +121,25 @@ namespace WindowsFormsExample
         private void button3_Click(object sender, EventArgs e)
         {
             this.panel1.Controls.Clear();
-            int size1, size2, w1, w2;
-            int length;
+            int left, top;
+            
             using (FileStream fs = new FileStream("bluepoint.bin", FileMode.Open))
             using (BinaryReader r = new BinaryReader(fs))
             {
-                int pos = 0;
-                length = (int)r.BaseStream.Length;
-                Console.WriteLine(length);
+                
                 while (r.BaseStream.Position != r.BaseStream.Length)
                 { 
 
                     Panel bluepanel = new Panel();
-                    size1 = r.ReadInt32();
-                    size2 = r.ReadInt32();
-                    w1 = r.ReadInt32();
-                    w2 = r.ReadInt32();
-                    bluepanel.Size = new Size(size1,size2);
+                    //size1 = r.ReadInt32();
+                    //size2 = r.ReadInt32();
+                    left = r.ReadInt32();
+                    top = r.ReadInt32();
+                    bluepanel.Size = new Size(10,10);
                     bluepanel.BackColor = Color.Blue;
-                    bluepanel.Location = new Point(w1, w2);
+                    bluepanel.Location = new Point(left, top); //X,Y
                     this.panel1.Controls.Add(bluepanel);
-                    pos += sizeof(int);
+                    
 
 
                 }
