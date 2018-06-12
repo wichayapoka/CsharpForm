@@ -13,7 +13,7 @@ namespace WindowsFormsExample
 {
     public partial class Form3 : Form
     {
-
+        List<Control> selected = new List<Control>();
         public Form3()
         {
             InitializeComponent();
@@ -34,7 +34,7 @@ namespace WindowsFormsExample
                 for (int i = 0; i < number; i++)
                 {
                     mypanel1.AddBluePanel(i * 10, i * 10);
-
+                    mypanel1.Tag = i;
                 }
                 mypanel1.Focus_panel();
                 
@@ -85,8 +85,34 @@ namespace WindowsFormsExample
                 }
                 mypanel1.Focus_panel();
                 fs.Flush();
+                mypanel1.Clear();
                 
             }
+        }
+
+        private void undo_Click(object sender, EventArgs e)
+        {
+            mypanel1.Undo_(mypanel1);
+        }
+
+        private void redo_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void mypanel1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void mypanel1_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void mypanel1_MouseDown(object sender, MouseEventArgs e)
+        {
+            //this.Text = "Clear";
         }
     }
 }

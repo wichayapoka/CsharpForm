@@ -85,6 +85,7 @@
             this.undo.TabIndex = 4;
             this.undo.Text = "Undo";
             this.undo.UseVisualStyleBackColor = true;
+            this.undo.Click += new System.EventHandler(this.undo_Click);
             // 
             // redo
             // 
@@ -94,6 +95,7 @@
             this.redo.TabIndex = 5;
             this.redo.Text = "Redo";
             this.redo.UseVisualStyleBackColor = true;
+            this.redo.Click += new System.EventHandler(this.redo_Click);
             // 
             // mypanel1
             // 
@@ -102,6 +104,9 @@
             this.mypanel1.Name = "mypanel1";
             this.mypanel1.Size = new System.Drawing.Size(768, 386);
             this.mypanel1.TabIndex = 6;
+            this.mypanel1.Load += new System.EventHandler(this.mypanel1_Load);
+            this.mypanel1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mypanel1_KeyDown);
+            this.mypanel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mypanel1_MouseDown);
             // 
             // Form3
             // 

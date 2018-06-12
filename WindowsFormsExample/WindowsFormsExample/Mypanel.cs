@@ -14,15 +14,41 @@ namespace WindowsFormsExample
     public partial class Mypanel : UserControl
     {
         int x, y;
-       
-        int selected = 0;
-        Control selectedControl;
-        Point selectionStart;
-        Point selectionEnd;
-        Rectangle selection;
-        List<int> selected_index = new List<int> { };
-        int select_all = 0;
+        //Point selectionStart; //drag
         
+        List<int> selected_index = new List<int> { };
+        
+        List<Control> selected_panel = new List<Control>();
+        
+        int select_all = 0;
+        enum Undo{
+            Unknown, Position
+        };
+        class History
+        {
+            public int local_x;
+            public int local_y;
+            public int index_control;
+            //public Panel target;
+            public Control target1;
+            public override string ToString()
+            {
+                if (target1 != null)
+                {
+                    
+                } else
+                {
+
+                }
+                return base.ToString();
+            }
+        }
+        //List<History> panel_history = new List<History>();
+        Stack<Control> history_u = new Stack<Control>();
+        List<Control> panel_history = new List<Control>();
+        List<History> history = new List<History>();
+        //List<int> local_x = new List<int>();
+        //List<int> local_y = new List<int>();
 
         public Mypanel()
         {
@@ -38,7 +64,7 @@ namespace WindowsFormsExample
             bluepanel.MouseDown += Bluepanel_MouseDown;
             bluepanel.MouseMove += Bluepanel_MouseMove;
             bluepanel.MouseUp += Bluepanel_MouseUp;
-            bluepanel.PreviewKeyDown += Bluepanel_PreviewKeyDown;
+            
             
 
 
@@ -54,126 +80,31 @@ namespace WindowsFormsExample
         {
             
             Control c = sender as Control;
-            if (Control.ModifierKeys == Keys.Control)
+            if (Control.ModifierKeys == Keys.Control) //selected, stay yellow
             {
-                if (c != null)
+                c.BackColor = Color.Yellow;
+
+            } else //click only
+            {
+                foreach (Control C in selected_panel)
                 {
-                    selectedControl = c;
+                    Control selected = (Control)C;
+                    selected.BackColor = Color.Blue;
                 }
-                //c.BackColor = Color.Yellow;
-               
-
-                Panel select = new Panel();
-                select.Location = new Point(c.Left, c.Top);
-                select.BackColor = c.BackColor;
-                select.Size = new Size(10, 10);
-                select.BackColor = Color.Yellow;
-                
-                select.MouseDown += Select_MouseDown;
-                select.MouseMove += Select_MouseMove;
-                select.MouseUp += Select_MouseUp;
-                //location
-                //local_x.Add(c.Left);
-                //local_y.Add(c.Top);
-                selected += 1;
-                //Console.WriteLine(this.Controls.IndexOf(c));
-                //selected_index.Add(this.Controls.IndexOf(c));
-                this.Controls.Remove(c);
-                this.Controls.Add(select);
-                Console.WriteLine(this.Controls.IndexOf(select));
-                //selected_index.Sort();
-                
-                
-                
-
-
-                //Console.WriteLine(local_x[0]);
-                //c.Select();
-
-
-            } else
-            {
-                c.BackColor = Color.Blue;
-                
+                selected_panel.Clear();
+                //c.BackColor = Color.Blue;
+                //Console.WriteLine(panel_history.Count);
             }
             Focus_panel();
-            
-
-            //throw new NotImplementedException();
-        }
-
-
-        private void Select_MouseUp(object sender, MouseEventArgs e)
-        {
-            Control c = sender as Control;
-            int count = this.Controls.Count;
-            //this.Controls.Clear();
             select_all = 0;
-            foreach (Control sel in this.Controls)
-            {
-                Panel blue = new Panel();
-                blue.Location = sel.Location;
-                sel.BackColor = Color.Blue;
-                blue.BackColor = sel.BackColor;
-                blue.Size = new Size(10, 10);
-                blue.MouseUp += Bluepanel_MouseUp;
-                blue.MouseMove += Bluepanel_MouseMove;
-                blue.MouseDown += Bluepanel_MouseDown;
-                
-                this.Controls.Add(blue);
-                
-            }
-            for (int i = 0; i < count; i++)
-            {
-                this.Controls.RemoveAt(0);
-            }
-            
-            
-            Focus_panel();
-            
-            
             
             //throw new NotImplementedException();
         }
 
-        private void Select_MouseMove(object sender, MouseEventArgs e)
-        {
 
-            Control s = sender as Control;
-            
         
-            
-            if (e.Button == MouseButtons.Left && Control.ModifierKeys != Keys.Control)
-            {
-                //sel.Location = new Point(e.X + sel.Left - x, e.Y + sel.Top - y);
-                
-                foreach (Control sel in this.Controls)
-                {
-                    if (sel.BackColor == Color.Yellow)
-                    {
-                        sel.Location = new Point(e.X + sel.Left - x, e.Y + sel.Top - y);
-                    }
-                    //sel.Location = new Point(e.X + sel.Left - x, e.Y + sel.Top - y);
-                    
-                }
 
-            }
-            
-        }
-
-        private void Select_MouseDown(object sender, MouseEventArgs e)
-        {
-            
-            if (e.Button == MouseButtons.Left)
-            {
-                x = e.X;
-                y = e.Y;
-
-            }
-            
-
-            //throw new NotImplementedException();
-        }
+        
 
         private void Bluepanel_MouseMove(object sender, MouseEventArgs e)
         {
@@ -182,10 +113,17 @@ namespace WindowsFormsExample
 
             if (e.Button == MouseButtons.Left && Control.ModifierKeys != Keys.Control)
             {
-                c.Location = new Point(e.X + c.Left - x, e.Y + c.Top - y);
-
+                foreach (Control C in selected_panel)
+                {
+                    Control selected = C as Control;
+                    selected.Location = new Point(e.X + selected.Left - x, e.Y + selected.Top - y);
+                    
+                }
+                
             }
-            //throw new NotImplementedException();
+            
+            Focus_panel();
+            
         }
 
         private void Bluepanel_MouseDown(object sender, MouseEventArgs e)
@@ -195,14 +133,51 @@ namespace WindowsFormsExample
 
             if (e.Button == MouseButtons.Left)
             {
-                
-                 x = e.X;
-                 y = e.Y;
-                 c.BackColor = Color.Yellow;
-                
+                History hx = new History();
+                hx.target1 = sender as Control;
+
+                if (Control.ModifierKeys == Keys.Control)
+                {
+                    c.BackColor = Color.Yellow;
+                    if (!selected_panel.Contains(c))
+                    {
+                        selected_panel.Add(c);
+                        hx.target1.Location = c.Location;
+                        hx.local_x = c.Left;
+                        hx.local_y = c.Top;
+                        hx.index_control = this.Controls.IndexOf(c);
+                        //panel_history.Add(c);
+                        history.Add(hx);
+                    } 
+                    
+                } else
+                {
+                    x = e.X;
+                    y = e.Y;
+                    c.BackColor = Color.Yellow;
+                    hx.local_x = c.Left;
+                    hx.local_y = c.Top;
+                    history.Add(hx);
+
+
+                    //hx.local_x = c.Left;
+                    //hx.local_y = c.Top;
+                    //hx.index_control = this.Controls.GetChildIndex(c);
+                    if (!selected_panel.Contains(c))
+                    {
+                        selected_panel.Add(c);
+                        hx.target1.Location = c.Location;
+                        //panel_history.Add(c);
+                        history.Add(hx);
+                    }
+                    
+                    //Console.WriteLine(panel_history.Count);
+                    //Console.WriteLine(panel_history[0].Location);
+                }
                 
 
-            }//throw new NotImplementedException();
+            }
+            
         }
 
         private void Mypanel_KeyDown(object sender, KeyEventArgs e)
@@ -213,41 +188,50 @@ namespace WindowsFormsExample
                 if (select_all == 0 && this.Controls.Count > 0) 
                 {
                     select_all = 1;
-                    
+
                     foreach (Control sel in this.Controls)
                     {
-                        Panel select = new Panel();
-                        select.Location = sel.Location;
-                        select.BackColor = Color.Yellow;
-                        select.Size = new Size(10, 10);
-
-                        select.MouseDown += Select_MouseDown;
-                        select.MouseMove += Select_MouseMove;
-                        select.MouseUp += Select_MouseUp;
-                        selected_index.Add(this.Controls.IndexOf(sel));
-
-                        //this.Controls.Remove(sel);
-                        this.Controls.Add(select);
+                        sel.BackColor = Color.Yellow;
+                        if (!selected_panel.Contains(sel))
+                        {
+                            selected_panel.Add(sel);
+                        }
+                        
 
                     }
-                    for (int i = 0; i < count; i++)
-                    {
-                        this.Controls.RemoveAt(0);
-                    }
+                    
+                    
                 }
                 Focus_panel();
                 //Console.WriteLine(local_x.Count);
                 
                 
             }
-            if (e.KeyCode == Keys.Delete && select_all == 1)
+            if (e.KeyCode == Keys.Delete && select_all == 1) //select all
             {
-
                 this.Controls.Clear();
                 selected_index.Clear();
+                selected_panel.Clear();
                 Focus_panel();
                 select_all = 0;
-                selected = 0;
+                
+            }
+            Control c = sender as Control;
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Z) //undo
+            {
+                int index_u = history.Count();
+                if (index_u != 0)
+                {
+                     //???
+                     c.Location = new Point(history[index_u - 1].local_x, history[index_u - 1].local_y);
+                    
+                    
+
+                    history.RemoveAt(index_u - 1);
+                }
+            } if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Y) //redo
+            {
+
             }
 
         }
@@ -257,13 +241,17 @@ namespace WindowsFormsExample
 
         }
 
-        private void Mypanel_MouseDown(object sender, MouseEventArgs e)
+        private void Mypanel_MouseDown(object sender, MouseEventArgs e) //clear
         {
-            if (e.Button == MouseButtons.Left)
+            
+            
+            select_all = 0;
+            foreach (Control selected in selected_panel)
             {
-                selectionStart = PointToClient(MousePosition);
-                
+                Control deselect = selected as Control;
+                deselect.BackColor = Color.Blue;
             }
+            selected_panel.Clear();
         }
 
         private void Mypanel_KeyUp(object sender, KeyEventArgs e)
@@ -293,6 +281,39 @@ namespace WindowsFormsExample
         {
             this.Focus();
         }
-        
+        public void Undo_(object sender)
+        {
+            
+            int index_u = selected_panel.Count();
+            if (index_u != 0) //not empty
+            {
+                /*Panel undo_p = new Panel();
+                undo_p.Location = new Point(panel_history[index_u - 1].local_x, panel_history[index_u - 1].local_y);
+                undo_p.BackColor = Color.Blue;
+                undo_p.Size = new Size(10, 10);
+                this.Controls.RemoveAt(panel_history[index_u - 1].index_control);
+                panel_history.RemoveAt(index_u - 1);
+                this.Controls.Add(undo_p);
+                undo_p.MouseDown += Bluepanel_MouseDown;
+                undo_p.MouseUp += Bluepanel_MouseUp;
+                undo_p.MouseMove += Bluepanel_MouseMove;*/
+                
+                foreach (Control c in this.Controls)
+                {
+                    
+                    c.Location = new Point(history[index_u - 1].local_x, history[index_u - 1].local_y);
+                }
+                //c.Location = new Point(history[index_u - 1].local_x, history[index_u - 1].local_y);
+                
+                history.RemoveAt(index_u - 1);
+
+            }
+           
+
+        }
+        public void Clear()
+        {
+            selected_panel.Clear();
+        }
     }
 }
