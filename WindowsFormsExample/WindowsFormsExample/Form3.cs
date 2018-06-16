@@ -43,6 +43,7 @@ namespace WindowsFormsExample
             {
                 this.ActiveControl = NumofPanel; //input number
             }
+            mypanel1.Clear();
         }
         
         private void Save_Click(object sender, EventArgs e)
@@ -92,12 +93,14 @@ namespace WindowsFormsExample
 
         private void undo_Click(object sender, EventArgs e)
         {
-            mypanel1.Undo_(mypanel1);
+            mypanel1.Undo_();
+            mypanel1.Focus_panel();
         }
 
         private void redo_Click(object sender, EventArgs e)
         {
-
+            mypanel1.Redo_();
+            mypanel1.Focus_panel();
         }
 
         private void mypanel1_Load(object sender, EventArgs e)
