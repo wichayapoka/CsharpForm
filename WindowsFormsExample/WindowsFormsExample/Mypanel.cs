@@ -170,6 +170,7 @@ namespace WindowsFormsExample
                 {
                     x = e.X;
                     y = e.Y;
+                    
                     c.BackColor = Color.Yellow;
 
                     
@@ -179,6 +180,7 @@ namespace WindowsFormsExample
 
                     if (!selected_panel.Contains(c))
                     {
+                        
                         selected_panel.Add(c);
                         //hx.target1.Location = c.Location;
                         //hx.local_x = c.Left;
@@ -337,13 +339,17 @@ namespace WindowsFormsExample
         }
         public void Undo_()
         {
-            int index_u = history_undo.Count();
+            //int index_u = history_undo.Count();
             Console.WriteLine("History = {0}", history_undo.Count);
 
-            if (index_u != 0 && selected_panel.Count == 0)
+            if (history_undo.Count != 0 && selected_panel.Count == 0)
             {
                 for (int i = 0; i < select_count[select_count.Count - 1]; i++) //undo muitiple panels
                 {
+                    if (history_undo.Count == 0)
+                    {
+                        return;
+                    }
                     Control target = history_undo[history_undo.Count - 1].target1;
                     History hx = new History(target.Left, target.Top, target); //readonly
                     history_redo.Add(hx);
@@ -384,7 +390,7 @@ namespace WindowsFormsExample
         {
             int index_r = history_redo.Count();
             int index_u = history_undo.Count();
-            if (index_r != 0)
+            if (history_redo.Count != 0 && select_count_r.Count != 0)
             {
                 //Control target = history_redo[index_r - 1].target1;
                 //History hx = new History(target.Left, target.Top, target);
@@ -405,12 +411,12 @@ namespace WindowsFormsExample
                 //Console.WriteLine(history_redo[index_r - 1].target1.Location);
                 for (int i = 0; i < select_count_r[select_count_r.Count - 1]; i++)
                 {
-                    Control target = history_redo[index_r - 1 - i].target1;
+                    Control target = history_redo[history_redo.Count - 1].target1;
                     History hx = new History(target.Left, target.Top, target);
                     history_undo.Add(hx);
-                    history_redo[index_r - 1 - i].target1.Location = new Point(history_redo[index_r - 1 - i].local_x, history_redo[index_r - 1 - i].local_y);
-                    Console.WriteLine(history_redo[index_r - 1 - i].target1.Location);
-                    history_redo.RemoveAt(index_r - 1 - i);
+                    history_redo[history_redo.Count - 1].target1.Location = new Point(history_redo[history_redo.Count - 1].local_x, history_redo[history_redo.Count - 1].local_y);
+                    Console.WriteLine(history_redo[history_redo.Count - 1].target1.Location);
+                    history_redo.RemoveAt(history_redo.Count - 1);
 
                 }
                 select_count.Add(select_count_r[select_count_r.Count - 1]);
