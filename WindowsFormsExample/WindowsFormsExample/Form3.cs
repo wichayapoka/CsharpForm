@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace WindowsFormsExample
 {
@@ -20,8 +22,16 @@ namespace WindowsFormsExample
             this.ActiveControl = NumofPanel;
         }
         
-
-        
+        public class Blue
+        {
+            public int x { get; set; }
+            public int y
+            {
+                get; set;
+            }
+            
+        }
+        List<Blue> p = new List<Blue>();
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -44,10 +54,33 @@ namespace WindowsFormsExample
                 this.ActiveControl = NumofPanel; //input number
             }
             mypanel1.Clear();
+            
         }
         
         private void Save_Click(object sender, EventArgs e)
         {
+            
+            using (FileStream fs = new FileStream("bluepoint_json.json", FileMode.Create))
+            using (StreamWriter file = new StreamWriter(fs))
+               
+            {
+                JsonSerializer json = new JsonSerializer();
+
+                //Blue one = new Blue();
+
+                foreach (Control c in this.mypanel1.Controls)
+                {
+                    Blue one = new Blue();
+
+                    one.x = c.Left;
+                    one.y = c.Top;
+                    p.Add(one);
+
+                }
+                json.Serialize(file, p);
+
+            }
+            mypanel1.Focus_panel();
             using (FileStream fs = new FileStream("bluepoint_user.bin", FileMode.Create))
             using (BinaryWriter w = new BinaryWriter(fs))
             {
@@ -57,7 +90,7 @@ namespace WindowsFormsExample
                     //location
                     w.Write(c.Left); //X
                     w.Write(c.Top); //Y
-                    
+
                 }
                 fs.Flush();
                 mypanel1.Focus_panel();
@@ -68,27 +101,75 @@ namespace WindowsFormsExample
         {
             this.mypanel1.Controls.Clear();
 
-            int left, top;
+            int left = 0, top = 0;
 
-            using (FileStream fs = new FileStream("bluepoint_user.bin", FileMode.Open))
-            using (BinaryReader r = new BinaryReader(fs))
+            using (StreamReader fs = new StreamReader("bluepoint_json.json"))
+            
             {
-
-                while (r.BaseStream.Position != r.BaseStream.Length)
-                {
-                    Panel bluepanel = new Panel();
-                    //location
-                    left = r.ReadInt32();
-                    top = r.ReadInt32();
-                    //show blue panels
-                    mypanel1.AddBluePanel(left, top);
-
-                }
-                mypanel1.Focus_panel();
-                fs.Flush();
-                mypanel1.Clear();
                 
+                string json = fs.ReadToEnd();
+                JArray a = JArray.Parse(json);
+                foreach (JObject o in a.Children<JObject>())
+                {
+                    
+                    foreach (JProperty p in o.Properties())
+                    {
+                        if (p.Name == "x")
+                        {
+                            left = (int)p.Value;
+                        } if (p.Name == "y")
+                        {
+                            top = (int)p.Value;
+                        }
+                        //Console.WriteLine(p.Name);
+                    }
+                    mypanel1.AddBluePanel(left, top);
+                }
+                mypanel1.Clear();
             }
+            using (StreamReader fs = new StreamReader("undo.json"))
+            {
+                string json = fs.ReadToEnd();
+                JArray undo = JArray.Parse(json);
+                foreach (JObject o in undo.Children<JObject>())
+                {
+
+                    foreach (JProperty p in o.Properties())
+                    {
+                        if (p.Name == "x")
+                        {
+                            left = (int)p.Value;
+                        }
+                        if (p.Name == "y")
+                        {
+                            top = (int)p.Value;
+                        }
+                        //Console.WriteLine(p.Name);
+                    }
+                    
+                }
+                mypanel1.Clear();
+
+            }
+            //using (FileStream fs = new FileStream("bluepoint_user.bin", FileMode.Open))
+            //using (BinaryReader r = new BinaryReader(fs))
+            //{
+
+                //    while (r.BaseStream.Position != r.BaseStream.Length)
+                //    {
+                //        Panel bluepanel = new Panel();
+                //        //location
+                //        left = r.ReadInt32();
+                //        top = r.ReadInt32();
+                //        //show blue panels
+                //        mypanel1.AddBluePanel(left, top);
+
+                //    }
+                //    mypanel1.Focus_panel();
+                //    fs.Flush();
+                //    mypanel1.Clear();
+
+                //}
         }
 
         private void undo_Click(object sender, EventArgs e)

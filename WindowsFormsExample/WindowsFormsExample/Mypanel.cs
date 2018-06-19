@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace WindowsFormsExample
 {
@@ -23,19 +25,20 @@ namespace WindowsFormsExample
         enum Undo {
             Unknown, Position
         };
-        //public struct History
+        //class History
         //{
         //    public int local_x;
         //    public int local_y;
 
-        //    public Control target1 { get; set; }
+        //    private Control target1;
+
 
         //}
         class History
         {
             public readonly int local_x;
             public readonly int local_y;
-            
+
             public readonly Control target1;
             public History(int local_x, int local_y, Control target1)
             {
@@ -44,15 +47,22 @@ namespace WindowsFormsExample
                 this.target1 = target1;
             }
         }
+        class Undo_json
+        {
+            public int x { get; set; }
+            public int y { get; set; }
+            //public Control target { get; set; }
+        }
 
-
-        
-
+        private Point selectionStart;
+        private Point selectionEnd;
+        private Rectangle selection; 
         List<Control> panel_history = new List<Control>();
         List<History> history_undo = new List<History>();
         List<History> history_redo = new List<History>();
-        List<int> select_count = new List<int>();
+        List<int> select_count = new List<int>(); //move selected panel
         List<int> select_count_r = new List<int>();
+        List<Undo_json> undo_j = new List<Undo_json>();
         
         public Mypanel()
         {
@@ -64,6 +74,7 @@ namespace WindowsFormsExample
             bluepanel.Size = new Size(10, 10);
             bluepanel.Location = new Point(x, y);
             bluepanel.BackColor = Color.Blue;
+            bluepanel.Tag = this.Controls.Count;
             this.Controls.Add(bluepanel);
             bluepanel.MouseDown += Bluepanel_MouseDown;
             bluepanel.MouseMove += Bluepanel_MouseMove;
@@ -149,8 +160,9 @@ namespace WindowsFormsExample
             if (e.Button == MouseButtons.Left)
             {
                 History hx = new History(c.Left, c.Top, c);
+                //History hx = new History();
                 //hx.target1 = sender as Control;
-                
+
 
                 if (Control.ModifierKeys == Keys.Control)
                 {
@@ -158,11 +170,12 @@ namespace WindowsFormsExample
                     if (!selected_panel.Contains(c))
                     {
                         selected_panel.Add(c);
-                        //hx.target1.Location = c.Location;
+                        hx.target1.Location = c.Location;
                         //hx.local_x = c.Left;
                         //hx.local_y = c.Top;
-                        
+
                         //panel_history.Add(c);
+                        AddUndo_json(hx);
                         history_undo.Add(hx);
                     } 
                     
@@ -173,11 +186,6 @@ namespace WindowsFormsExample
                     
                     c.BackColor = Color.Yellow;
 
-                    
-
-
-
-
                     if (!selected_panel.Contains(c))
                     {
                         
@@ -186,6 +194,7 @@ namespace WindowsFormsExample
                         //hx.local_x = c.Left;
                         //hx.local_y = c.Top;
                         //panel_history.Add(c);
+                        AddUndo_json(hx);
                         history_undo.Add(hx);
 
                     }
@@ -193,7 +202,7 @@ namespace WindowsFormsExample
                     //Console.WriteLine(panel_history.Count);
                     //Console.WriteLine(panel_history[0].Location);
                 }
-                Console.WriteLine("panel = {0}", selected_panel.Count);
+                Console.WriteLine("Selected panel = {0}", selected_panel.Count);
 
             }
             
@@ -214,12 +223,14 @@ namespace WindowsFormsExample
                         if (!selected_panel.Contains(sel))
                         {
                             History hx = new History(sel.Left, sel.Top, sel);
+                            //History hx = new History();
                             //hx.target1 = sel as Control;
                             selected_panel.Add(sel);
                             //hx.local_x = sel.Left;
                             //hx.local_y = sel.Top;
-                            //hx.target1.Location = sel.Location;
+                            hx.target1.Location = sel.Location;
                             //panel_history.Add(c);
+                            AddUndo_json(hx);
                             history_undo.Add(hx);
                         }
                         
@@ -251,9 +262,13 @@ namespace WindowsFormsExample
                     Control selected = C as Control;
                     //this.Controls.Remove(selected);
                     this.Controls.Remove(C);
+                    history_undo.RemoveAt(history_undo.Count - 1);
+                    undo_j.RemoveAt(undo_j.Count - 1);
 
                 }
+                
                 selected_panel.Clear();
+                //history_undo.RemoveAt(history_undo.Count - 1);
                 Focus_panel(); //delete and focus 
             }
             
@@ -278,17 +293,19 @@ namespace WindowsFormsExample
         {
 
             int index = history_undo.Count - 1;
-            //select_all = 0;
+            
             foreach (Control selected in selected_panel)
             {
                 Control deselect = selected as Control;
                 deselect.BackColor = Color.Blue;
                 
-                //history_undo.RemoveAt(index);
+                
                 index -= 1;
             }
             selected_panel.Clear();
-            //history_undo.Clear();
+            //Point
+            selectionStart = e.Location;
+            
         }
 
         private void Mypanel_KeyUp(object sender, KeyEventArgs e)
@@ -317,15 +334,75 @@ namespace WindowsFormsExample
 
         private void Mypanel_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            if (e.Button != MouseButtons.Left)
             {
-
+                return;
             }
+            
         }
 
         private void Mypanel_MouseUp(object sender, MouseEventArgs e)
         {
+            selectionEnd = e.Location;
+            int x, y; //point
+            int width, height; //size
+            //Point
+            if (selectionStart.X > selectionEnd.X)
+            {
+                x = selectionEnd.X;
+            }
+            else
+            {
+                x = selectionStart.X;
+            }
+            if (selectionStart.Y > selectionEnd.Y)
+            {
+                y = selectionEnd.Y;
+            }
+            else
+            {
+                y = selectionStart.Y;
+            }
 
+            //size
+            if (selectionStart.X > selectionEnd.X)
+            {
+                width = selectionStart.X - selectionEnd.X;
+            } else
+            {
+                width = selectionEnd.X - selectionStart.X;
+            } if (selectionStart.Y > selectionEnd.Y)
+            {
+                height = selectionStart.Y - selectionEnd.Y;
+            } else
+            {
+                height = selectionEnd.Y - selectionStart.Y;
+            }
+            //create rectangle
+            selection = new Rectangle(x, y, width, height);
+            GetSelectedPanel();
+        }
+        private void GetSelectedPanel()
+        {
+            foreach (Control c in this.Controls)
+            {
+
+                if (selection.Contains(c.Bounds)) //panel inside rectangle?
+                {
+                    
+                    c.BackColor = Color.Yellow;
+                    History hx = new History(c.Left, c.Top, c);
+                    //History hx = new History();
+                    //hx.local_x = c.Left;
+                    //hx.local_y = c.Top;
+                    //hx.target1 = c;
+                    selected_panel.Add(c);
+                    history_undo.Add(hx);   
+                }
+            }
+            Console.WriteLine("SelectionStart = {0}", selectionStart);
+            Console.WriteLine("SelectionEnd = {0}", selectionEnd);
+            
         }
 
         private void Mypanel_Load(object sender, EventArgs e)
@@ -339,10 +416,11 @@ namespace WindowsFormsExample
         }
         public void Undo_()
         {
+
             //int index_u = history_undo.Count();
             Console.WriteLine("History = {0}", history_undo.Count);
 
-            if (history_undo.Count != 0 && selected_panel.Count == 0)
+            if ( selected_panel.Count == 0 && select_count.Count != 0)
             {
                 for (int i = 0; i < select_count[select_count.Count - 1]; i++) //undo muitiple panels
                 {
@@ -350,8 +428,13 @@ namespace WindowsFormsExample
                     {
                         return;
                     }
-                    Control target = history_undo[history_undo.Count - 1].target1;
+                    
+                        Control target = history_undo[history_undo.Count - 1].target1;
                     History hx = new History(target.Left, target.Top, target); //readonly
+                    //History hx = new History();
+                    //hx.local_x = target.Left;
+                    //hx.local_y = target.Top;
+                    //hx.target1 = target;
                     history_redo.Add(hx);
                     history_undo[history_undo.Count - 1].target1.Location =
                         new Point(history_undo[history_undo.Count - 1].local_x, history_undo[history_undo.Count - 1].local_y);
@@ -385,6 +468,7 @@ namespace WindowsFormsExample
 
 
             }
+            
         }
         public void Redo_()
         {
@@ -413,6 +497,10 @@ namespace WindowsFormsExample
                 {
                     Control target = history_redo[history_redo.Count - 1].target1;
                     History hx = new History(target.Left, target.Top, target);
+                    //History hx = new History();
+                    //hx.local_x = history_redo[index_r - 1].local_x;
+                    //hx.local_y = history_redo[index_r - 1].local_y;
+                    //hx.target1 = target;
                     history_undo.Add(hx);
                     history_redo[history_redo.Count - 1].target1.Location = new Point(history_redo[history_redo.Count - 1].local_x, history_redo[history_redo.Count - 1].local_y);
                     Console.WriteLine(history_redo[history_redo.Count - 1].target1.Location);
@@ -423,16 +511,59 @@ namespace WindowsFormsExample
                 select_count_r.RemoveAt(select_count_r.Count - 1);
             }
         }
+        private void AddUndo_json(History hx)
+        {
+            JsonSerializer json = new JsonSerializer();
 
+            using (FileStream fs = new FileStream("undo.json", FileMode.Create))
+            using (StreamWriter s = new StreamWriter(fs))
+            {
+                Undo_json one = new Undo_json();
+
+                one.x = hx.local_x;
+                one.y = hx.local_y;
+                //one.target.Location = hx.target1.Location;
+                undo_j.Add(one);
+                json.Serialize(s, undo_j);
+                fs.Flush();
+                
+            }
+            
+        }
         
         public void Clear()
         {
-            Console.WriteLine(history_undo.Count);
+            //Console.WriteLine(history_undo.Count);
             selected_panel.Clear();
             history_undo.Clear();
             history_redo.Clear();
             select_count.Clear();
             select_count_r.Clear();
+            //File.Delete("undo.json");
+            //string json = JsonConvert.SerializeObject(account, Formatting.Indented);
+            //Console.WriteLine(json);
+
         }
+        //public class Account
+        //{
+        //    public string Email { get; set; }
+        //    public bool Active { get; set; }
+        //    public DateTime CreatedDate { get; set; }
+        //    public IList<string> Roles { get; set; }
+        //}
+        //Account account = new Account
+        //{
+        //    Email = "james@example.com",
+        //    Active = true,
+        //    CreatedDate = new DateTime(2013, 1, 20, 0, 0, 0, DateTimeKind.Utc),
+        //    Roles = new List<string>
+        //{
+        //"User",
+        //"Admin"
+        //}
+        //};
+
+        
+       
     }
 }

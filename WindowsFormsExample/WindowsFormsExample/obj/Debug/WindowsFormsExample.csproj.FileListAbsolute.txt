@@ -21,3 +21,6 @@ C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\Windows
 C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.Form2.resources
 C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.Form3.resources
 C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.Mypanel.resources
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\bin\Debug\Newtonsoft.Json.dll
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\bin\Debug\Newtonsoft.Json.xml
+C:\Users\NITRO 5 Spin I7\Documents\GitHub\CsharpForm\WindowsFormsExample\WindowsFormsExample\obj\Debug\WindowsFormsExample.csproj.CopyComplete
