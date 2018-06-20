@@ -49,15 +49,17 @@ namespace WindowsFormsExample
         }
         class Undo_json
         {
-            public int x { get; set; }
-            public int y { get; set; }
+            public int T { get; set; }
+            public int X { get; set; }
+            public int Y { get; set; }
+            
             //public Control target { get; set; }
         }
-
+        //drag selection
         private Point selectionStart;
         private Point selectionEnd;
         private Rectangle selection; 
-        List<Control> panel_history = new List<Control>();
+        //Undo, Redo
         List<History> history_undo = new List<History>();
         List<History> history_redo = new List<History>();
         List<int> select_count = new List<int>(); //move selected panel
@@ -70,6 +72,7 @@ namespace WindowsFormsExample
         }
         public void AddBluePanel(int x, int y)
         {
+            //event delegate
             Panel bluepanel = new Panel();
             bluepanel.Size = new Size(10, 10);
             bluepanel.Location = new Point(x, y);
@@ -101,6 +104,7 @@ namespace WindowsFormsExample
                 if (Control.ModifierKeys != Keys.Control)
                 {
                     select_count.Add(selected_panel.Count); //move selected
+                    AddSelect_count(); //save to json
                 }
                 //select_count.Add(selected_panel.Count);
 
@@ -109,29 +113,22 @@ namespace WindowsFormsExample
                 if (Control.ModifierKeys != Keys.Control)
                 {
                     select_count.Add(selected_panel.Count);
+                    AddSelect_count(); //save to json
                 }
                
                 c.BackColor = Color.Blue;
                 //Console.WriteLine(panel_history.Count);
                 selected_panel.Clear();
             }
-            Focus_panel();
-            //select_all = 0;
-            
-            
+            Focus_panel();      
         }
-
-
-        
-
-        
 
         private void Bluepanel_MouseMove(object sender, MouseEventArgs e)
         {
 
             Control c = sender as Control;
 
-            if (e.Button == MouseButtons.Left && Control.ModifierKeys != Keys.Control)
+            if (e.Button == MouseButtons.Left && Control.ModifierKeys != Keys.Control) //moving panel
             {
                 foreach (Control C in selected_panel)
                 {
@@ -139,12 +136,9 @@ namespace WindowsFormsExample
                     {
                         C.Location = new Point(e.X + C.Left - x, e.Y + C.Top - y);
                     }
-                    //C.Location = new Point(e.X + C.Left - x, e.Y + C.Top - y);
                     
                 }
                 //select_count.Add(selected_panel.Count);
-
-
                 history_redo.Clear();
             }
             
@@ -162,8 +156,6 @@ namespace WindowsFormsExample
                 History hx = new History(c.Left, c.Top, c);
                 //History hx = new History();
                 //hx.target1 = sender as Control;
-
-
                 if (Control.ModifierKeys == Keys.Control)
                 {
                     c.BackColor = Color.Yellow;
@@ -173,7 +165,6 @@ namespace WindowsFormsExample
                         hx.target1.Location = c.Location;
                         //hx.local_x = c.Left;
                         //hx.local_y = c.Top;
-
                         //panel_history.Add(c);
                         AddUndo_json(hx);
                         history_undo.Add(hx);
@@ -199,12 +190,11 @@ namespace WindowsFormsExample
 
                     }
                     
-                    //Console.WriteLine(panel_history.Count);
-                    //Console.WriteLine(panel_history[0].Location);
+                    
                 }
                 Console.WriteLine("Selected panel = {0}", selected_panel.Count);
 
-            }
+            } //reference ident
             
         }
 
@@ -215,7 +205,6 @@ namespace WindowsFormsExample
             {
                 if (this.Controls.Count > 0) 
                 {
-                    //select_all = 1;
                     
                     foreach (Control sel in this.Controls)
                     {
@@ -229,7 +218,7 @@ namespace WindowsFormsExample
                             //hx.local_x = sel.Left;
                             //hx.local_y = sel.Top;
                             hx.target1.Location = sel.Location;
-                            //panel_history.Add(c);
+                            
                             AddUndo_json(hx);
                             history_undo.Add(hx);
                         }
@@ -244,16 +233,7 @@ namespace WindowsFormsExample
                 
                 
             }
-            /*else if (e.KeyCode == Keys.Delete && select_all == 1) //select all
-            {
-                
-                this.Controls.Clear();
-                
-                selected_panel.Clear();
-                Focus_panel();
-                select_all = 0;
-                
-            }*/
+           
             else if (e.KeyCode == Keys.Delete)
             {
                 
@@ -511,7 +491,7 @@ namespace WindowsFormsExample
                 select_count_r.RemoveAt(select_count_r.Count - 1);
             }
         }
-        private void AddUndo_json(History hx)
+        private void AddUndo_json(History hx) //x, y Save to json
         {
             JsonSerializer json = new JsonSerializer();
 
@@ -520,28 +500,55 @@ namespace WindowsFormsExample
             {
                 Undo_json one = new Undo_json();
 
-                one.x = hx.local_x;
-                one.y = hx.local_y;
-                //one.target.Location = hx.target1.Location;
+                one.X = hx.local_x;
+                one.Y = hx.local_y;
+                one.T = (int)hx.target1.Tag;
+                
                 undo_j.Add(one);
                 json.Serialize(s, undo_j);
                 fs.Flush();
                 
             }
             
+            
         }
-        
+        private void AddSelect_count() //json
+        {
+
+            JsonSerializer json = new JsonSerializer();
+            using (FileStream fs = new FileStream("select_count.json", FileMode.Create))
+            using (StreamWriter s = new StreamWriter(fs))
+            {
+
+                json.Serialize(s, select_count);
+                fs.Flush();
+
+            }
+        }
+        public void Load_History_undo(int x, int y, int tag) //load json
+        {
+            foreach (Control load in this.Controls)
+            {
+                if ((int)load.Tag == tag)
+                {
+                    History hx = new History(x, y, load);
+                    history_undo.Add(hx);
+                }
+            }
+        }
+        public void Load_Select_Count(int select) //load json
+        {
+            select_count.Add(select);
+        }
         public void Clear()
         {
-            //Console.WriteLine(history_undo.Count);
+            
             selected_panel.Clear();
             history_undo.Clear();
             history_redo.Clear();
             select_count.Clear();
             select_count_r.Clear();
-            //File.Delete("undo.json");
-            //string json = JsonConvert.SerializeObject(account, Formatting.Indented);
-            //Console.WriteLine(json);
+           
 
         }
         //public class Account

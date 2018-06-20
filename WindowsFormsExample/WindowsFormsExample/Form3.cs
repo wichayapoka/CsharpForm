@@ -81,34 +81,38 @@ namespace WindowsFormsExample
 
             }
             mypanel1.Focus_panel();
-            using (FileStream fs = new FileStream("bluepoint_user.bin", FileMode.Create))
-            using (BinaryWriter w = new BinaryWriter(fs))
-            {
-                foreach (Control c in this.mypanel1.Controls)
-                {
+            p.Clear();
+            //using (FileStream fs = new FileStream("bluepoint_user.bin", FileMode.Create))
+            //using (BinaryWriter w = new BinaryWriter(fs))
+            //{
+            //    foreach (Control c in this.mypanel1.Controls)
+            //    {
 
-                    //location
-                    w.Write(c.Left); //X
-                    w.Write(c.Top); //Y
+            //        //location
+            //        w.Write(c.Left); //X
+            //        w.Write(c.Top); //Y
 
-                }
-                fs.Flush();
-                mypanel1.Focus_panel();
-            }
+            //    }
+            //    fs.Flush();
+            //    mypanel1.Focus_panel();
+            //}
+
         }
 
         private void load_Click(object sender, EventArgs e)
         {
             this.mypanel1.Controls.Clear();
-
-            int left = 0, top = 0;
+            mypanel1.Clear();
+            int left = 0, top = 0, tag = 0;
 
             using (StreamReader fs = new StreamReader("bluepoint_json.json"))
             
             {
                 
                 string json = fs.ReadToEnd();
+
                 JArray a = JArray.Parse(json);
+                //Console.WriteLine(a);
                 foreach (JObject o in a.Children<JObject>())
                 {
                     
@@ -136,40 +140,57 @@ namespace WindowsFormsExample
 
                     foreach (JProperty p in o.Properties())
                     {
-                        if (p.Name == "x")
+                        if (p.Name == "X")
                         {
                             left = (int)p.Value;
                         }
-                        if (p.Name == "y")
+                        if (p.Name == "Y")
                         {
                             top = (int)p.Value;
                         }
+                        if (p.Name == "T")
+                        {
+                            tag = (int)p.Value;
+                        }
                         //Console.WriteLine(p.Name);
+                        
                     }
+                    mypanel1.Load_History_undo(left, top, tag);
                     
                 }
-                mypanel1.Clear();
+                //mypanel1.Clear();
 
             }
+            using (StreamReader fs = new StreamReader("select_count.json"))
+            {
+                string json = fs.ReadToEnd();
+                JArray undo = JArray.Parse(json);
+                foreach (JValue o in undo)
+                {
+                    //Console.WriteLine(o);
+                    mypanel1.Load_Select_Count((int)o);
+                }
+            }
+            mypanel1.Focus_panel();
             //using (FileStream fs = new FileStream("bluepoint_user.bin", FileMode.Open))
             //using (BinaryReader r = new BinaryReader(fs))
             //{
 
-                //    while (r.BaseStream.Position != r.BaseStream.Length)
-                //    {
-                //        Panel bluepanel = new Panel();
-                //        //location
-                //        left = r.ReadInt32();
-                //        top = r.ReadInt32();
-                //        //show blue panels
-                //        mypanel1.AddBluePanel(left, top);
+            //    while (r.BaseStream.Position != r.BaseStream.Length)
+            //    {
+            //        Panel bluepanel = new Panel();
+            //        //location
+            //        left = r.ReadInt32();
+            //        top = r.ReadInt32();
+            //        //show blue panels
+            //        mypanel1.AddBluePanel(left, top);
 
-                //    }
-                //    mypanel1.Focus_panel();
-                //    fs.Flush();
-                //    mypanel1.Clear();
+            //    }
+            //    mypanel1.Focus_panel();
+            //    fs.Flush();
+            //    mypanel1.Clear();
 
-                //}
+            //}
         }
 
         private void undo_Click(object sender, EventArgs e)
