@@ -104,7 +104,7 @@ namespace WindowsFormsExample
                 if (Control.ModifierKeys != Keys.Control)
                 {
                     select_count.Add(selected_panel.Count); //move selected
-                    AddSelect_count(); //save to json
+                    //AddSelect_count(); //save to json
                 }
                 //select_count.Add(selected_panel.Count);
 
@@ -113,7 +113,7 @@ namespace WindowsFormsExample
                 if (Control.ModifierKeys != Keys.Control)
                 {
                     select_count.Add(selected_panel.Count);
-                    AddSelect_count(); //save to json
+                    //AddSelect_count(); //save to json
                 }
                
                 c.BackColor = Color.Blue;
@@ -419,6 +419,7 @@ namespace WindowsFormsExample
                     history_undo[history_undo.Count - 1].target1.Location =
                         new Point(history_undo[history_undo.Count - 1].local_x, history_undo[history_undo.Count - 1].local_y);
                     history_undo.RemoveAt(history_undo.Count - 1); //remove last history undo
+                    undo_j.RemoveAt(undo_j.Count - 1);
 
                 }
                 select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
@@ -493,11 +494,7 @@ namespace WindowsFormsExample
         }
         private void AddUndo_json(History hx) //x, y Save to json
         {
-            JsonSerializer json = new JsonSerializer();
-
-            using (FileStream fs = new FileStream("undo.json", FileMode.Create))
-            using (StreamWriter s = new StreamWriter(fs))
-            {
+           
                 Undo_json one = new Undo_json();
 
                 one.X = hx.local_x;
@@ -505,16 +502,13 @@ namespace WindowsFormsExample
                 one.T = (int)hx.target1.Tag;
                 
                 undo_j.Add(one);
-                json.Serialize(s, undo_j);
-                fs.Flush();
-                
-            }
+            
             
             
         }
-        private void AddSelect_count() //json
+        
+        public void Save_undo_Count()
         {
-
             JsonSerializer json = new JsonSerializer();
             using (FileStream fs = new FileStream("select_count.json", FileMode.Create))
             using (StreamWriter s = new StreamWriter(fs))
@@ -524,6 +518,18 @@ namespace WindowsFormsExample
                 fs.Flush();
 
             }
+            JsonSerializer json2 = new JsonSerializer();
+
+            using (FileStream fs = new FileStream("undo.json", FileMode.Create))
+            using (StreamWriter s = new StreamWriter(fs))
+            {
+               
+                json2.Serialize(s, undo_j);
+                fs.Flush();
+
+            }
+
+
         }
         public void Load_History_undo(int x, int y, int tag) //load json
         {

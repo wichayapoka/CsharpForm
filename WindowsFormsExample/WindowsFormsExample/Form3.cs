@@ -80,6 +80,7 @@ namespace WindowsFormsExample
                 json.Serialize(file, p);
 
             }
+            mypanel1.Save_undo_Count();
             mypanel1.Focus_panel();
             p.Clear();
             //using (FileStream fs = new FileStream("bluepoint_user.bin", FileMode.Create))
