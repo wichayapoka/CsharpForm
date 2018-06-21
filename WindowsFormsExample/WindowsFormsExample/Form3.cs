@@ -60,7 +60,7 @@ namespace WindowsFormsExample
         private void Save_Click(object sender, EventArgs e)
         {
             
-            using (FileStream fs = new FileStream("bluepoint_json.json", FileMode.Create))
+            using (FileStream fs = new FileStream("SavePanel.json", FileMode.Create))
             using (StreamWriter file = new StreamWriter(fs))
                
             {
@@ -106,7 +106,7 @@ namespace WindowsFormsExample
             mypanel1.Clear();
             int left = 0, top = 0, tag = 0;
 
-            using (StreamReader fs = new StreamReader("bluepoint_json.json"))
+            using (StreamReader fs = new StreamReader("SavePanel.json"))
             
             {
                 
@@ -130,9 +130,9 @@ namespace WindowsFormsExample
                     }
                     mypanel1.AddBluePanel(left, top);
                 }
-                mypanel1.Clear();
+                
             }
-            using (StreamReader fs = new StreamReader("undo.json"))
+            using (StreamReader fs = new StreamReader("History.json")) //undo
             {
                 string json = fs.ReadToEnd();
                 JArray undo = JArray.Parse(json);
@@ -162,7 +162,7 @@ namespace WindowsFormsExample
                 //mypanel1.Clear();
 
             }
-            using (StreamReader fs = new StreamReader("select_count.json"))
+            using (StreamReader fs = new StreamReader("ListCountHistoty.json"))
             {
                 string json = fs.ReadToEnd();
                 JArray undo = JArray.Parse(json);

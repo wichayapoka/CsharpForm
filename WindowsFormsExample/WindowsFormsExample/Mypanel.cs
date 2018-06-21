@@ -49,11 +49,11 @@ namespace WindowsFormsExample
         }
         class Undo_json
         {
-            public int T { get; set; }
+           
             public int X { get; set; }
             public int Y { get; set; }
-            
-            //public Control target { get; set; }
+            public int T { get; set; }
+
         }
         //drag selection
         private Point selectionStart;
@@ -166,7 +166,7 @@ namespace WindowsFormsExample
                         //hx.local_x = c.Left;
                         //hx.local_y = c.Top;
                         //panel_history.Add(c);
-                        AddUndo_json(hx);
+                        //AddUndo_json(hx);
                         history_undo.Add(hx);
                     } 
                     
@@ -185,7 +185,7 @@ namespace WindowsFormsExample
                         //hx.local_x = c.Left;
                         //hx.local_y = c.Top;
                         //panel_history.Add(c);
-                        AddUndo_json(hx);
+                        //AddUndo_json(hx);
                         history_undo.Add(hx);
 
                     }
@@ -219,7 +219,7 @@ namespace WindowsFormsExample
                             //hx.local_y = sel.Top;
                             hx.target1.Location = sel.Location;
                             
-                            AddUndo_json(hx);
+                            //AddUndo_json(hx);
                             history_undo.Add(hx);
                         }
                         
@@ -419,7 +419,7 @@ namespace WindowsFormsExample
                     history_undo[history_undo.Count - 1].target1.Location =
                         new Point(history_undo[history_undo.Count - 1].local_x, history_undo[history_undo.Count - 1].local_y);
                     history_undo.RemoveAt(history_undo.Count - 1); //remove last history undo
-                    undo_j.RemoveAt(undo_j.Count - 1);
+                    //undo_j.RemoveAt(undo_j.Count - 1); //json undo with x, y, tag
 
                 }
                 select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
@@ -486,7 +486,7 @@ namespace WindowsFormsExample
                     history_redo[history_redo.Count - 1].target1.Location = new Point(history_redo[history_redo.Count - 1].local_x, history_redo[history_redo.Count - 1].local_y);
                     Console.WriteLine(history_redo[history_redo.Count - 1].target1.Location);
                     history_redo.RemoveAt(history_redo.Count - 1);
-
+                    
                 }
                 select_count.Add(select_count_r[select_count_r.Count - 1]);
                 select_count_r.RemoveAt(select_count_r.Count - 1);
@@ -509,6 +509,7 @@ namespace WindowsFormsExample
         
         public void Save_undo_Count()
         {
+            undo_j.Clear();
             JsonSerializer json = new JsonSerializer();
             using (FileStream fs = new FileStream("select_count.json", FileMode.Create))
             using (StreamWriter s = new StreamWriter(fs))
@@ -523,7 +524,10 @@ namespace WindowsFormsExample
             using (FileStream fs = new FileStream("undo.json", FileMode.Create))
             using (StreamWriter s = new StreamWriter(fs))
             {
-               
+                foreach (History undo in history_undo)
+                {
+                    AddUndo_json(undo);
+                }
                 json2.Serialize(s, undo_j);
                 fs.Flush();
 
@@ -539,6 +543,7 @@ namespace WindowsFormsExample
                 {
                     History hx = new History(x, y, load);
                     history_undo.Add(hx);
+                    //AddUndo_json(hx);
                 }
             }
         }
@@ -557,26 +562,6 @@ namespace WindowsFormsExample
            
 
         }
-        //public class Account
-        //{
-        //    public string Email { get; set; }
-        //    public bool Active { get; set; }
-        //    public DateTime CreatedDate { get; set; }
-        //    public IList<string> Roles { get; set; }
-        //}
-        //Account account = new Account
-        //{
-        //    Email = "james@example.com",
-        //    Active = true,
-        //    CreatedDate = new DateTime(2013, 1, 20, 0, 0, 0, DateTimeKind.Utc),
-        //    Roles = new List<string>
-        //{
-        //"User",
-        //"Admin"
-        //}
-        //};
-
-        
        
     }
 }
