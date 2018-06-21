@@ -18,18 +18,19 @@ namespace WindowsFormsExample
         List<Control> selected = new List<Control>();
         public Form3()
         {
+            //Undo_timer.Stop();
             InitializeComponent();
             this.ActiveControl = NumofPanel;
         }
         
         public class Blue
         {
-            public int x { get; set; }
-            public int y
+            public int X { get; set; }
+            public int Y
             {
                 get; set;
             }
-            
+            public int T { get; set; }
         }
         List<Blue> p = new List<Blue>();
 
@@ -72,8 +73,9 @@ namespace WindowsFormsExample
                 {
                     Blue one = new Blue();
 
-                    one.x = c.Left;
-                    one.y = c.Top;
+                    one.X = c.Left;
+                    one.Y = c.Top;
+                    one.T = (int)c.Tag;
                     p.Add(one);
 
                 }
@@ -119,12 +121,15 @@ namespace WindowsFormsExample
                     
                     foreach (JProperty p in o.Properties())
                     {
-                        if (p.Name == "x")
+                        if (p.Name == "X")
                         {
                             left = (int)p.Value;
-                        } if (p.Name == "y")
+                        } if (p.Name == "Y")
                         {
                             top = (int)p.Value;
+                        } if (p.Name == "T")
+                        {
+                            tag = (int)p.Value;
                         }
                         //Console.WriteLine(p.Name);
                     }
@@ -162,7 +167,7 @@ namespace WindowsFormsExample
                 //mypanel1.Clear();
 
             }
-            using (StreamReader fs = new StreamReader("ListCountHistoty.json"))
+            using (StreamReader fs = new StreamReader("ListCountHistory.json"))
             {
                 string json = fs.ReadToEnd();
                 JArray undo = JArray.Parse(json);
@@ -196,7 +201,7 @@ namespace WindowsFormsExample
 
         private void undo_Click(object sender, EventArgs e)
         {
-            mypanel1.Undo_();
+            mypanel1.Undo_(sender, e);
             mypanel1.Focus_panel();
         }
 

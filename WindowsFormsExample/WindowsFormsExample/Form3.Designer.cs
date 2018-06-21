@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.button1 = new System.Windows.Forms.Button();
             this.save = new System.Windows.Forms.Button();
             this.NumofPanel = new System.Windows.Forms.TextBox();
@@ -35,6 +36,7 @@
             this.undo = new System.Windows.Forms.Button();
             this.redo = new System.Windows.Forms.Button();
             this.mypanel1 = new WindowsFormsExample.Mypanel();
+            this.Undo_timer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // button1
@@ -108,6 +110,10 @@
             this.mypanel1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mypanel1_KeyDown);
             this.mypanel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mypanel1_MouseDown);
             // 
+            // Undo_timer
+            // 
+            this.Undo_timer.Interval = 500;
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -136,5 +142,6 @@
         private System.Windows.Forms.Button undo;
         private System.Windows.Forms.Button redo;
         private Mypanel mypanel1;
+        private System.Windows.Forms.Timer Undo_timer;
     }
 }

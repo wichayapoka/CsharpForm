@@ -28,7 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.Undo_timer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
+            // 
+            // Undo_timer
+            // 
+            this.Undo_timer.Interval = 50;
+            this.Undo_timer.Tick += new System.EventHandler(this.Undo_timer1_Tick);
             // 
             // Mypanel
             // 
@@ -50,5 +57,7 @@
         }
 
         #endregion
+
+        private System.Windows.Forms.Timer Undo_timer;
     }
 }
