@@ -65,10 +65,13 @@ namespace WindowsFormsExample
         List<int> select_count = new List<int>(); //move selected panel
         List<int> select_count_r = new List<int>();
         List<Undo_json> undo_j = new List<Undo_json>();
+        bool drag;
         
         public Mypanel()
         {
             InitializeComponent();
+            Undo_timer.Enabled = false;
+            
         }
         public void AddBluePanel(int x, int y)
         {
@@ -139,6 +142,7 @@ namespace WindowsFormsExample
                     
                 }
                 //select_count.Add(selected_panel.Count);
+                drag = true;
                 history_redo.Clear();
             }
             
@@ -150,7 +154,7 @@ namespace WindowsFormsExample
         {
 
             Control c = (Control)sender;
-
+            drag = false;
             if (e.Button == MouseButtons.Left)
             {
                 History hx = new History(c.Left, c.Top, c);
@@ -201,6 +205,7 @@ namespace WindowsFormsExample
         private void Mypanel_KeyDown(object sender, KeyEventArgs e)
         {
             int count = this.Controls.Count;
+            drag = false;
             if (e.KeyCode == Keys.A && e.Modifiers == Keys.Control)
             {
                 if (this.Controls.Count > 0) 
@@ -255,7 +260,9 @@ namespace WindowsFormsExample
             else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Z && selected_panel.Count == 0) //unselect before undo
             {
                 Undo_(sender, e);
+                Undo_timer.Tick -= Undo_;
                 
+
             } else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Y) //redo
             {
                 Redo_();
@@ -278,10 +285,14 @@ namespace WindowsFormsExample
             {
                 Control deselect = selected as Control;
                 deselect.BackColor = Color.Blue;
-                
+                if (drag == false)
+                {
+                    history_undo.RemoveAt(history_undo.Count - 1);
+                }
                 
                 index -= 1;
             }
+            drag = false;
             selected_panel.Clear();
             //Point
             selectionStart = e.Location;
@@ -377,7 +388,8 @@ namespace WindowsFormsExample
                     //hx.local_y = c.Top;
                     //hx.target1 = c;
                     selected_panel.Add(c);
-                    history_undo.Add(hx);   
+                    history_undo.Add(hx);
+                    drag = false;
                 }
             }
             Console.WriteLine("SelectionStart = {0}", selectionStart);
@@ -409,7 +421,7 @@ namespace WindowsFormsExample
                         return;
                     }
                     
-                    Control target = history_undo[history_undo.Count - 1].target1;
+                    Control target = history_undo[history_undo.Count - 1 - i].target1;
                     History hx = new History(target.Left, target.Top, target); //readonly
                     //History hx = new History();
                     //hx.local_x = target.Left;
@@ -417,17 +429,27 @@ namespace WindowsFormsExample
                     //hx.target1 = target;
                    
                     history_redo.Add(hx);
-                    Undo_with_animation(sender, e);
+                    
                     //history_undo[history_undo.Count - 1].target1.Location =
                     //new Point(history_undo[history_undo.Count - 1].local_x, history_undo[history_undo.Count - 1].local_y);
                     //history_undo.RemoveAt(history_undo.Count - 1); //remove last history undo
 
 
                 }
-                select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
-                select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
-                                                               //Control target = history_undo[index_u - 1].target1;
-                                                               //History hx = new History(target.Left, target.Top, target);
+                if (Undo_timer.Enabled == false) //undo
+                {
+                    this.Undo_timer.Enabled = true;
+                    Undo_with_animation(sender, e);
+                    
+                    //Undo_timer.Tick += new EventHandler(Undo_with_animation);
+                }
+                //Undo_with_animation(sender, e);
+                //select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
+                //select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
+
+                //Control target = history_undo[index_u - 1].target1;
+
+                //History hx = new History(target.Left, target.Top, target);
 
                 //hx.target1 = target;
                 //hx.local_x = history_undo[index_u - 1].local_x;
@@ -502,45 +524,73 @@ namespace WindowsFormsExample
             Console.WriteLine(history_undo[history_undo.Count - 1].local_x);
             undo_x = history_undo[history_undo.Count - 1].target1.Left;
             undo_y = history_undo[history_undo.Count - 1].target1.Top;
-            //Invoke(Undo_timer);
-            this.Undo_timer.Start();
+
+            //this.Undo_timer.Enabled = true;
+            Undo_timer.Tick -= Undo_with_animation;
             Undo_timer.Tick += (s2, e2) =>
             {
+                //this.BeginInvoke(new MethodInvoker(() =>
+                //{
+                
+                
                 if (history_undo.Count != 0) //
                 {
-                    this.Invoke(new MethodInvoker(() =>
+                    if (history_undo[history_undo.Count - 1].target1.Left != history_undo[history_undo.Count - 1].local_x
+                               || history_undo[history_undo.Count - 1].target1.Top != history_undo[history_undo.Count - 1].local_y)
+
                     {
-                        if (history_undo[history_undo.Count - 1].target1.Left != history_undo[history_undo.Count - 1].local_x
-                        || history_undo[history_undo.Count - 1].target1.Top != history_undo[history_undo.Count - 1].local_y)
+
+
+                        for (int i = 0; i < select_count[select_count.Count - 1]; i++)
                         {
-                            if (history_undo[history_undo.Count - 1].target1.Left > history_undo[history_undo.Count - 1].local_x) //current and history
+                            //1 pixel
+
+                            if (history_undo[history_undo.Count - 1 - i].target1.Left > history_undo[history_undo.Count - 1 - i].local_x) //current and history
                             {
-                                history_undo[history_undo.Count - 1].target1.Left -= 1;
+                                history_undo[history_undo.Count - 1 - i].target1.Left -= 1;
                             }
-                            if (history_undo[history_undo.Count - 1].target1.Top > history_undo[history_undo.Count - 1].local_y)
+                            if (history_undo[history_undo.Count - 1 - i].target1.Top > history_undo[history_undo.Count - 1 - i].local_y)
                             {
-                                history_undo[history_undo.Count - 1].target1.Top -= 1;
+                                history_undo[history_undo.Count - 1 - i].target1.Top -= 1;
                             }
-                            if (history_undo[history_undo.Count - 1].target1.Left < history_undo[history_undo.Count - 1].local_x)
+                            if (history_undo[history_undo.Count - 1 - i].target1.Left < history_undo[history_undo.Count - 1 - i].local_x)
                             {
-                                history_undo[history_undo.Count - 1].target1.Left += 1;
+                                history_undo[history_undo.Count - 1 - i].target1.Left += 1;
                             }
-                            if (history_undo[history_undo.Count - 1].target1.Top < history_undo[history_undo.Count - 1].local_y)
+                            if (history_undo[history_undo.Count - 1 - i].target1.Top < history_undo[history_undo.Count - 1 - i].local_y)
                             {
                                 history_undo[history_undo.Count - 1].target1.Top += 1;
                             }
 
-
                         }
-                        else
+                    }
+                    else
+                    {
+                        Console.WriteLine("Undoooo");
+                        this.Undo_timer.Stop();
+                        this.Undo_timer.Enabled = false;
+                        for (int i = 0; i < select_count[select_count.Count - 1]; i++)
                         {
-                            this.Undo_timer.Stop();
                             history_undo.RemoveAt(history_undo.Count - 1);
                         }
-                    }));
+                        select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
+                        select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
+                        
+
+                    }
                 }
-               
+                //this.Undo_timer.Stop();
+
+                // }));
+
+
+                
             };
+           
+
+
+
+
         }
         private void AddUndo_json(History hx) //x, y Save to json
         {
@@ -605,7 +655,7 @@ namespace WindowsFormsExample
 
         private void Undo_timer1_Tick(object sender, EventArgs e)
         {
-            
+            Undo_timer.Tick -= Undo_timer1_Tick ;
         }
 
         public void Clear()

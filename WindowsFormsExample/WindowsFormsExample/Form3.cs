@@ -21,6 +21,7 @@ namespace WindowsFormsExample
             //Undo_timer.Stop();
             InitializeComponent();
             this.ActiveControl = NumofPanel;
+            
         }
         
         public class Blue
