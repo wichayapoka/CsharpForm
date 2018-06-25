@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using System.IO;
+using System.Timers;
 
 namespace WindowsFormsExample
 {
@@ -66,12 +67,14 @@ namespace WindowsFormsExample
         List<int> select_count_r = new List<int>();
         List<Undo_json> undo_j = new List<Undo_json>();
         bool drag;
+        bool time;
         
         public Mypanel()
         {
             InitializeComponent();
             Undo_timer.Enabled = false;
-            
+            //Undo_timer.AutoReset = false;
+
         }
         public void AddBluePanel(int x, int y)
         {
@@ -205,12 +208,12 @@ namespace WindowsFormsExample
         private void Mypanel_KeyDown(object sender, KeyEventArgs e)
         {
             int count = this.Controls.Count;
-            drag = false;
+            
             if (e.KeyCode == Keys.A && e.Modifiers == Keys.Control)
             {
                 if (this.Controls.Count > 0) 
                 {
-                    
+                    drag = false;
                     foreach (Control sel in this.Controls)
                     {
                         sel.BackColor = Color.Yellow;
@@ -251,22 +254,22 @@ namespace WindowsFormsExample
                     undo_j.RemoveAt(undo_j.Count - 1);
 
                 }
-                
+                drag = false;
                 selected_panel.Clear();
                 //history_undo.RemoveAt(history_undo.Count - 1);
                 Focus_panel(); //delete and focus 
             }
             
-            else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Z && selected_panel.Count == 0) //unselect before undo
+            else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Z && selected_panel.Count == 0 && !Undo_timer.Enabled) //unselect before undo
             {
                 Undo_(sender, e);
-                Undo_timer.Tick -= Undo_;
                 
+                drag = false;
 
-            } else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Y) //redo
+            } else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Y && !Undo_timer.Enabled) //redo
             {
                 Redo_();
-                
+                drag = false;
             }
 
         }
@@ -321,15 +324,6 @@ namespace WindowsFormsExample
             {
                 MessageBox.Show(stack.Pop());
             }*/
-        }
-
-        private void Mypanel_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (e.Button != MouseButtons.Left)
-            {
-                return;
-            }
-            
         }
 
         private void Mypanel_MouseUp(object sender, MouseEventArgs e)
@@ -405,6 +399,7 @@ namespace WindowsFormsExample
         public void Focus_panel()
         {
             this.Focus();
+            Undo_timer.Enabled = false;
         }
         public void Undo_(object sender, EventArgs e)
         {
@@ -436,13 +431,12 @@ namespace WindowsFormsExample
 
 
                 }
-                if (Undo_timer.Enabled == false) //undo
-                {
-                    this.Undo_timer.Enabled = true;
-                    Undo_with_animation(sender, e);
+                
+                this.Undo_timer.Enabled = true;
+                Undo_with_animation(sender, e);
                     
                     //Undo_timer.Tick += new EventHandler(Undo_with_animation);
-                }
+                
                 //Undo_with_animation(sender, e);
                 //select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
                 //select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
@@ -516,77 +510,215 @@ namespace WindowsFormsExample
                 select_count_r.RemoveAt(select_count_r.Count - 1);
             }
         }
+
+        EventHandler tick_animation;
+        public void Set_Step()
+        {
+            step = 1;
+            steps = 20; //2 second
+            time = true;
+        }
+        public void Set_Speed()
+        {
+            time = false;
+        }
+        int step = 1, steps = 20; //2 second
         private void Undo_with_animation(object sender, EventArgs e)
         {
-            int undo_x, undo_y;
-            int time = 5;
-            float distance_x, distance_y;
-            Console.WriteLine(history_undo[history_undo.Count - 1].local_x);
-            undo_x = history_undo[history_undo.Count - 1].target1.Left;
-            undo_y = history_undo[history_undo.Count - 1].target1.Top;
-
-            //this.Undo_timer.Enabled = true;
-            Undo_timer.Tick -= Undo_with_animation;
-            Undo_timer.Tick += (s2, e2) =>
+            
+            
+            
+            
+            if (tick_animation != null)
             {
-                //this.BeginInvoke(new MethodInvoker(() =>
-                //{
-                
-                
-                if (history_undo.Count != 0) //
+                Undo_timer.Tick -= tick_animation;
+            }
+            double distance;
+            double undo_x = Math.Abs(history_undo[history_undo.Count - 1].target1.Left - history_undo[history_undo.Count - 1].local_x);
+            double undo_y = Math.Abs(history_undo[history_undo.Count - 1].target1.Top - history_undo[history_undo.Count - 1].local_y);
+            //Static speed
+            int moving_speed_x = 4;
+            int moving_speed_y = 4;
+            //steps = (int)undo_x;
+            distance = Math.Sqrt(undo_x * undo_x + undo_y * undo_y); //Pythagorean Theorem leg calculation
+            //steps = (int)distance;
+            Console.WriteLine("Distance = {0}", distance);
+
+            //Console.WriteLine("Moving speed x = {0}", moving_speed_x);
+            //Console.WriteLine("Moving speed y = {0}", moving_speed_y);
+            //this.Undo_timer.Enabled = true;
+            //Undo_timer.Tick += tick_animation;
+            if (time == true)
+            {
+                tick_animation = (s2, e2) => //1 second move time.
                 {
-                    if (history_undo[history_undo.Count - 1].target1.Left != history_undo[history_undo.Count - 1].local_x
-                               || history_undo[history_undo.Count - 1].target1.Top != history_undo[history_undo.Count - 1].local_y)
 
+                    this.BeginInvoke(new MethodInvoker(() =>
+                    {
+                        if (history_undo.Count != 0) //
                     {
 
+                            if (history_undo[history_undo.Count - 1].target1.Left != history_undo[history_undo.Count - 1].local_x
+                                       || history_undo[history_undo.Count - 1].target1.Top != history_undo[history_undo.Count - 1].local_y)
+                            {
 
-                        for (int i = 0; i < select_count[select_count.Count - 1]; i++)
-                        {
-                            //1 pixel
+                                for (int i = 0; i < select_count[select_count.Count - 1]; i++)
+                                {
 
-                            if (history_undo[history_undo.Count - 1 - i].target1.Left > history_undo[history_undo.Count - 1 - i].local_x) //current and history
-                            {
-                                history_undo[history_undo.Count - 1 - i].target1.Left -= 1;
-                            }
-                            if (history_undo[history_undo.Count - 1 - i].target1.Top > history_undo[history_undo.Count - 1 - i].local_y)
-                            {
-                                history_undo[history_undo.Count - 1 - i].target1.Top -= 1;
-                            }
-                            if (history_undo[history_undo.Count - 1 - i].target1.Left < history_undo[history_undo.Count - 1 - i].local_x)
-                            {
-                                history_undo[history_undo.Count - 1 - i].target1.Left += 1;
-                            }
-                            if (history_undo[history_undo.Count - 1 - i].target1.Top < history_undo[history_undo.Count - 1 - i].local_y)
-                            {
-                                history_undo[history_undo.Count - 1].target1.Top += 1;
-                            }
+                                    int x = history_undo[history_undo.Count - 1 - i].target1.Left + (history_undo[history_undo.Count - 1 - i].local_x - history_undo[history_undo.Count - 1 - i].target1.Left) * step / steps;
+                                    int y = history_undo[history_undo.Count - 1 - i].target1.Top + (history_undo[history_undo.Count - 1 - i].local_y - history_undo[history_undo.Count - 1 - i].target1.Top) * step / steps;
 
+                                    if (history_undo[history_undo.Count - 1 - i].target1.Left > history_undo[history_undo.Count - 1 - i].local_x) //current position and history
+                                {
+
+                                    //history_undo[history_undo.Count - 1 - i].target1.Left -= moving_speed_x;
+                                    history_undo[history_undo.Count - 1 - i].target1.Left = x;
+                                    }
+                                    if (history_undo[history_undo.Count - 1 - i].target1.Top > history_undo[history_undo.Count - 1 - i].local_y)
+                                    {
+                                    //history_undo[history_undo.Count - 1 - i].target1.Top -= moving_speed_y;
+                                    history_undo[history_undo.Count - 1 - i].target1.Top = y;
+                                    }
+                                    if (history_undo[history_undo.Count - 1 - i].target1.Left < history_undo[history_undo.Count - 1 - i].local_x)
+                                    {
+                                    //history_undo[history_undo.Count - 1 - i].target1.Left = moving_speed_x;
+                                    history_undo[history_undo.Count - 1 - i].target1.Left = x;
+                                    }
+                                    if (history_undo[history_undo.Count - 1 - i].target1.Top < history_undo[history_undo.Count - 1 - i].local_y)
+                                    {
+                                    //history_undo[history_undo.Count - 1 - i].target1.Top += moving_speed_y;
+                                    history_undo[history_undo.Count - 1 - i].target1.Top = y;
+                                    }
+                                //scrap
+                                //if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Left - history_undo[history_undo.Count - 1 - i].local_x) < moving_speed_x)
+                                if (step == 10)
+                                    {
+                                        history_undo[history_undo.Count - 1 - i].target1.Left = history_undo[history_undo.Count - 1 - i].local_x;
+                                        history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
+                                    }
+                                //if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Top - history_undo[history_undo.Count - 1 - i].local_y) < moving_speed_y)
+                                //if (step == 10)
+                                //{
+                                //    //history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
+
+                                //}
+
+                            }
+                                step += 1;
+
+                            }
+                            else
+                            {
+
+                                Undo_timer.Stop();
+                                Undo_timer.Enabled = false;
+
+
+                                for (int i = 0; i < select_count[select_count.Count - 1]; i++)
+                                {
+                                    history_undo.RemoveAt(history_undo.Count - 1);
+                                }
+                                select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
+                            select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
+                            step = 1;
+                                return;
+
+                            }
                         }
-                    }
-                    else
+
+
+                    }));
+
+
+
+                };
+                Undo_timer.Tick += tick_animation;
+            } else
+            {
+                tick_animation = (s2, e2) => //Fixed speed
+                {
+
+                    this.BeginInvoke(new MethodInvoker(() =>
                     {
-                        Console.WriteLine("Undoooo");
-                        this.Undo_timer.Stop();
-                        this.Undo_timer.Enabled = false;
-                        for (int i = 0; i < select_count[select_count.Count - 1]; i++)
+                        if (history_undo.Count != 0) //
                         {
-                            history_undo.RemoveAt(history_undo.Count - 1);
+
+                            if (history_undo[history_undo.Count - 1].target1.Left != history_undo[history_undo.Count - 1].local_x
+                                       || history_undo[history_undo.Count - 1].target1.Top != history_undo[history_undo.Count - 1].local_y)
+                            {
+
+                                for (int i = 0; i < select_count[select_count.Count - 1]; i++)
+                                {
+
+                                    int x = history_undo[history_undo.Count - 1 - i].target1.Left + (history_undo[history_undo.Count - 1 - i].local_x - history_undo[history_undo.Count - 1 - i].target1.Left) * step / steps;
+                                    int y = history_undo[history_undo.Count - 1 - i].target1.Top + (history_undo[history_undo.Count - 1 - i].local_y - history_undo[history_undo.Count - 1 - i].target1.Top) * step / steps;
+
+                                    if (history_undo[history_undo.Count - 1 - i].target1.Left > history_undo[history_undo.Count - 1 - i].local_x) //current position and history
+                                    {
+
+                                        history_undo[history_undo.Count - 1 - i].target1.Left -= moving_speed_x;
+                                        
+                                    }
+                                    if (history_undo[history_undo.Count - 1 - i].target1.Top > history_undo[history_undo.Count - 1 - i].local_y)
+                                    {
+                                        history_undo[history_undo.Count - 1 - i].target1.Top -= moving_speed_y;
+                                        
+                                    }
+                                    if (history_undo[history_undo.Count - 1 - i].target1.Left < history_undo[history_undo.Count - 1 - i].local_x)
+                                    {
+                                        history_undo[history_undo.Count - 1 - i].target1.Left += moving_speed_x;
+                                        
+                                    }
+                                    if (history_undo[history_undo.Count - 1 - i].target1.Top < history_undo[history_undo.Count - 1 - i].local_y)
+                                    {
+                                        history_undo[history_undo.Count - 1 - i].target1.Top += moving_speed_y;
+                                        
+                                    }
+                                    //scrap
+                                    if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Left - history_undo[history_undo.Count - 1 - i].local_x) < moving_speed_x)
+                                    //if (step == 10)
+                                    {
+                                        history_undo[history_undo.Count - 1 - i].target1.Left = history_undo[history_undo.Count - 1 - i].local_x;
+                                        //history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
+                                    }
+                                    if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Top - history_undo[history_undo.Count - 1 - i].local_y) < moving_speed_y)
+                                    //if (step == 10)
+                                    {
+                                        history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
+
+                                    }
+
+                                }
+                                step += 1;
+
+                            }
+                            else
+                            {
+
+                                Undo_timer.Stop();
+                                Undo_timer.Enabled = false;
+
+
+                                for (int i = 0; i < select_count[select_count.Count - 1]; i++)
+                                {
+                                    history_undo.RemoveAt(history_undo.Count - 1);
+                                }
+                                select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
+                                select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
+                                step = 1;
+                                return;
+
+                            }
                         }
-                        select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
-                        select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
-                        
-
-                    }
-                }
-                //this.Undo_timer.Stop();
-
-                // }));
 
 
-                
-            };
-           
+                    }));
+
+
+
+                };
+                Undo_timer.Tick += tick_animation;
+            }
 
 
 
@@ -655,7 +787,7 @@ namespace WindowsFormsExample
 
         private void Undo_timer1_Tick(object sender, EventArgs e)
         {
-            Undo_timer.Tick -= Undo_timer1_Tick ;
+            
         }
 
         public void Clear()

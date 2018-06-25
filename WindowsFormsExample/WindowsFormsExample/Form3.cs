@@ -21,7 +21,7 @@ namespace WindowsFormsExample
             //Undo_timer.Stop();
             InitializeComponent();
             this.ActiveControl = NumofPanel;
-            
+            Time.Checked = true;
         }
         
         public class Blue
@@ -37,6 +37,7 @@ namespace WindowsFormsExample
 
         private void button1_Click(object sender, EventArgs e)
         {
+            
             string input = NumofPanel.Text;
             if (!string.IsNullOrEmpty(input)) //not empty
 
@@ -225,6 +226,33 @@ namespace WindowsFormsExample
         private void mypanel1_MouseDown(object sender, MouseEventArgs e)
         {
             //this.Text = "Clear";
+        }
+
+        
+
+        private void Time_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Speed_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Time_MouseClick(object sender, MouseEventArgs e) //selected
+        {
+            mypanel1.Set_Step();
+        }
+
+        private void Speed_MouseClick(object sender, MouseEventArgs e) //selected
+        {
+            mypanel1.Set_Speed();
+        }
+
+        private void Speed_MouseCaptureChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

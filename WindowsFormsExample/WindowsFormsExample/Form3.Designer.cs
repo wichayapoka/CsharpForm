@@ -35,6 +35,8 @@
             this.undo = new System.Windows.Forms.Button();
             this.redo = new System.Windows.Forms.Button();
             this.mypanel1 = new WindowsFormsExample.Mypanel();
+            this.Time = new System.Windows.Forms.RadioButton();
+            this.Speed = new System.Windows.Forms.RadioButton();
             this.SuspendLayout();
             // 
             // button1
@@ -42,7 +44,7 @@
             this.button1.Location = new System.Drawing.Point(129, 12);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(133, 30);
-            this.button1.TabIndex = 0;
+            this.button1.TabIndex = 1;
             this.button1.Text = "Show panel";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -53,7 +55,7 @@
             this.save.Location = new System.Drawing.Point(268, 10);
             this.save.Name = "save";
             this.save.Size = new System.Drawing.Size(142, 34);
-            this.save.TabIndex = 1;
+            this.save.TabIndex = 2;
             this.save.Text = "Save";
             this.save.UseVisualStyleBackColor = true;
             this.save.Click += new System.EventHandler(this.Save_Click);
@@ -64,7 +66,7 @@
             this.NumofPanel.Location = new System.Drawing.Point(12, 12);
             this.NumofPanel.Name = "NumofPanel";
             this.NumofPanel.Size = new System.Drawing.Size(111, 30);
-            this.NumofPanel.TabIndex = 2;
+            this.NumofPanel.TabIndex = 0;
             // 
             // load
             // 
@@ -100,19 +102,48 @@
             // mypanel1
             // 
             this.mypanel1.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.mypanel1.Location = new System.Drawing.Point(12, 52);
+            this.mypanel1.Location = new System.Drawing.Point(12, 103);
             this.mypanel1.Name = "mypanel1";
-            this.mypanel1.Size = new System.Drawing.Size(768, 386);
-            this.mypanel1.TabIndex = 6;
+            this.mypanel1.Size = new System.Drawing.Size(776, 386);
+            this.mypanel1.TabIndex = 8;
             this.mypanel1.Load += new System.EventHandler(this.mypanel1_Load);
             this.mypanel1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mypanel1_KeyDown);
             this.mypanel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mypanel1_MouseDown);
+            // 
+            // Time
+            // 
+            this.Time.AutoSize = true;
+            this.Time.Location = new System.Drawing.Point(12, 48);
+            this.Time.Name = "Time";
+            this.Time.Size = new System.Drawing.Size(291, 21);
+            this.Time.TabIndex = 6;
+            this.Time.TabStop = true;
+            this.Time.Text = "1 Second undo animation (approximately)";
+            this.Time.UseVisualStyleBackColor = true;
+            this.Time.CheckedChanged += new System.EventHandler(this.Time_CheckedChanged);
+            this.Time.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Time_MouseClick);
+            // 
+            // Speed
+            // 
+            this.Speed.AutoSize = true;
+            this.Speed.Location = new System.Drawing.Point(12, 75);
+            this.Speed.Name = "Speed";
+            this.Speed.Size = new System.Drawing.Size(177, 21);
+            this.Speed.TabIndex = 7;
+            this.Speed.TabStop = true;
+            this.Speed.Text = "Fixed speed (1 interval)";
+            this.Speed.UseVisualStyleBackColor = true;
+            this.Speed.CheckedChanged += new System.EventHandler(this.Speed_CheckedChanged);
+            this.Speed.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Speed_MouseClick);
+            this.Speed.MouseCaptureChanged += new System.EventHandler(this.Speed_MouseCaptureChanged);
             // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(800, 501);
+            this.Controls.Add(this.Speed);
+            this.Controls.Add(this.Time);
             this.Controls.Add(this.mypanel1);
             this.Controls.Add(this.redo);
             this.Controls.Add(this.undo);
@@ -136,5 +167,7 @@
         private System.Windows.Forms.Button undo;
         private System.Windows.Forms.Button redo;
         private Mypanel mypanel1;
+        private System.Windows.Forms.RadioButton Time;
+        private System.Windows.Forms.RadioButton Speed;
     }
 }

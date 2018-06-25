@@ -34,7 +34,6 @@
             // 
             // Undo_timer
             // 
-            this.Undo_timer.Interval = 50;
             this.Undo_timer.Tick += new System.EventHandler(this.Undo_timer1_Tick);
             // 
             // Mypanel
@@ -49,7 +48,6 @@
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Mypanel_KeyPress);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Mypanel_KeyUp);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Mypanel_MouseDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Mypanel_MouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Mypanel_MouseUp);
             this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Bluepanel_PreviewKeyDown);
             this.ResumeLayout(false);
