@@ -49,7 +49,6 @@
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Mypanel_KeyUp);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Mypanel_MouseDown);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Mypanel_MouseUp);
-            this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Bluepanel_PreviewKeyDown);
             this.ResumeLayout(false);
 
         }

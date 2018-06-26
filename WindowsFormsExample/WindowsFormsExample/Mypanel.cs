@@ -67,7 +67,7 @@ namespace WindowsFormsExample
         List<int> select_count_r = new List<int>();
         List<Undo_json> undo_j = new List<Undo_json>();
         bool drag;
-        bool time;
+        bool time = true;
         
         public Mypanel()
         {
@@ -88,11 +88,6 @@ namespace WindowsFormsExample
             bluepanel.MouseDown += Bluepanel_MouseDown;
             bluepanel.MouseMove += Bluepanel_MouseMove;
             bluepanel.MouseUp += Bluepanel_MouseUp;
-            
-            
-
-
-
         }
 
         private void Bluepanel_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
@@ -281,25 +276,27 @@ namespace WindowsFormsExample
 
         private void Mypanel_MouseDown(object sender, MouseEventArgs e) //clear
         {
-
-            int index = history_undo.Count - 1;
-            
-            foreach (Control selected in selected_panel)
+            if (!Undo_timer.Enabled)
             {
-                Control deselect = selected as Control;
-                deselect.BackColor = Color.Blue;
-                if (drag == false)
+                int index = history_undo.Count - 1;
+
+                foreach (Control selected in selected_panel)
                 {
-                    history_undo.RemoveAt(history_undo.Count - 1);
+                    Control deselect = selected as Control;
+                    deselect.BackColor = Color.Blue;
+                    if (drag == false)
+                    {
+                        history_undo.RemoveAt(history_undo.Count - 1);
+                    }
+
+                    index -= 1;
                 }
-                
-                index -= 1;
+                drag = false;
+                selected_panel.Clear();
+                //Point
+
             }
-            drag = false;
-            selected_panel.Clear();
-            //Point
             selectionStart = e.Location;
-            
         }
 
         private void Mypanel_KeyUp(object sender, KeyEventArgs e)
@@ -365,7 +362,10 @@ namespace WindowsFormsExample
             }
             //create rectangle
             selection = new Rectangle(x, y, width, height);
-            GetSelectedPanel();
+            if (!Undo_timer.Enabled)
+            {
+                GetSelectedPanel();
+            }
         }
         private void GetSelectedPanel()
         {
@@ -428,8 +428,6 @@ namespace WindowsFormsExample
                     //history_undo[history_undo.Count - 1].target1.Location =
                     //new Point(history_undo[history_undo.Count - 1].local_x, history_undo[history_undo.Count - 1].local_y);
                     //history_undo.RemoveAt(history_undo.Count - 1); //remove last history undo
-
-
                 }
                 
                 this.Undo_timer.Enabled = true;
@@ -473,7 +471,7 @@ namespace WindowsFormsExample
         {
             int index_r = history_redo.Count();
             int index_u = history_undo.Count();
-            if (history_redo.Count != 0 && select_count_r.Count != 0)
+            if (history_redo.Count != 0 && select_count_r.Count != 0 && selected_panel.Count == 0)
             {
                 //Control target = history_redo[index_r - 1].target1;
                 //History hx = new History(target.Left, target.Top, target);
@@ -517,18 +515,18 @@ namespace WindowsFormsExample
             step = 1;
             steps = 20; //2 second
             time = true;
+            Undo_timer.Interval = 100;
+
         }
         public void Set_Speed()
         {
             time = false;
+            Undo_timer.Interval = 50;
         }
         int step = 1, steps = 20; //2 second
         private void Undo_with_animation(object sender, EventArgs e)
         {
-            
-            
-            
-            
+
             if (tick_animation != null)
             {
                 Undo_timer.Tick -= tick_animation;
@@ -544,10 +542,6 @@ namespace WindowsFormsExample
             //steps = (int)distance;
             Console.WriteLine("Distance = {0}", distance);
 
-            //Console.WriteLine("Moving speed x = {0}", moving_speed_x);
-            //Console.WriteLine("Moving speed y = {0}", moving_speed_y);
-            //this.Undo_timer.Enabled = true;
-            //Undo_timer.Tick += tick_animation;
             if (time == true)
             {
                 tick_animation = (s2, e2) => //1 second move time.
@@ -590,29 +584,22 @@ namespace WindowsFormsExample
                                     history_undo[history_undo.Count - 1 - i].target1.Top = y;
                                     }
                                 //scrap
-                                //if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Left - history_undo[history_undo.Count - 1 - i].local_x) < moving_speed_x)
                                 if (step == 10)
                                     {
                                         history_undo[history_undo.Count - 1 - i].target1.Left = history_undo[history_undo.Count - 1 - i].local_x;
                                         history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
                                     }
-                                //if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Top - history_undo[history_undo.Count - 1 - i].local_y) < moving_speed_y)
-                                //if (step == 10)
-                                //{
-                                //    //history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
-
-                                //}
+                               
 
                             }
-                                step += 1;
+                            step += 1;
 
                             }
                             else
                             {
 
-                                Undo_timer.Stop();
+                                
                                 Undo_timer.Enabled = false;
-
 
                                 for (int i = 0; i < select_count[select_count.Count - 1]; i++)
                                 {
@@ -635,9 +622,11 @@ namespace WindowsFormsExample
                 Undo_timer.Tick += tick_animation;
             } else
             {
+                //steps = (int)distance / 2;
+
+
                 tick_animation = (s2, e2) => //Fixed speed
                 {
-
                     this.BeginInvoke(new MethodInvoker(() =>
                     {
                         if (history_undo.Count != 0) //
@@ -676,13 +665,13 @@ namespace WindowsFormsExample
                                     }
                                     //scrap
                                     if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Left - history_undo[history_undo.Count - 1 - i].local_x) < moving_speed_x)
-                                    //if (step == 10)
+                                    //if (step == steps / 4)
                                     {
                                         history_undo[history_undo.Count - 1 - i].target1.Left = history_undo[history_undo.Count - 1 - i].local_x;
                                         //history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
                                     }
                                     if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Top - history_undo[history_undo.Count - 1 - i].local_y) < moving_speed_y)
-                                    //if (step == 10)
+                                    //if (step == steps / 4)
                                     {
                                         history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
 
@@ -694,11 +683,8 @@ namespace WindowsFormsExample
                             }
                             else
                             {
-
                                 Undo_timer.Stop();
                                 Undo_timer.Enabled = false;
-
-
                                 for (int i = 0; i < select_count[select_count.Count - 1]; i++)
                                 {
                                     history_undo.RemoveAt(history_undo.Count - 1);

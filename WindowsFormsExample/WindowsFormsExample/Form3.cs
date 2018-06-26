@@ -243,11 +243,13 @@ namespace WindowsFormsExample
         private void Time_MouseClick(object sender, MouseEventArgs e) //selected
         {
             mypanel1.Set_Step();
+            this.ActiveControl = NumofPanel;
         }
 
         private void Speed_MouseClick(object sender, MouseEventArgs e) //selected
         {
             mypanel1.Set_Speed();
+            this.ActiveControl = NumofPanel;
         }
 
         private void Speed_MouseCaptureChanged(object sender, EventArgs e)
