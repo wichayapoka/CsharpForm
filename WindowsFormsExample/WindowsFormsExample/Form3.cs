@@ -38,7 +38,7 @@ namespace WindowsFormsExample
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
+            if (mypanel1.Undo_timer.Enabled) { return; }
             string input = NumofPanel.Text;
             if (!string.IsNullOrEmpty(input) && 
                (!string.IsNullOrEmpty(Time_or_speed.Text))) //not empty
@@ -78,7 +78,7 @@ namespace WindowsFormsExample
         
         private void Save_Click(object sender, EventArgs e)
         {
-            
+            if (mypanel1.Undo_timer.Enabled) { return; }
             using (FileStream fs = new FileStream("SavePanel.json", FileMode.Create))
             using (StreamWriter file = new StreamWriter(fs))
                
@@ -109,6 +109,8 @@ namespace WindowsFormsExample
 
         private void load_Click(object sender, EventArgs e)
         {
+            if (mypanel1.Undo_timer.Enabled) { return; }
+
             this.mypanel1.Controls.Clear();
             mypanel1.Clear();
             int left = 0, top = 0, tag = 0;
@@ -200,13 +202,16 @@ namespace WindowsFormsExample
 
         private void undo_Click(object sender, EventArgs e)
         {
+            if (mypanel1.Undo_timer.Enabled) { return; }
+
             mypanel1.Undo_(sender, e);
             mypanel1.Focus_panel();
         }
 
         private void redo_Click(object sender, EventArgs e)
         {
-            
+            if (mypanel1.Undo_timer.Enabled) { return; }
+
             mypanel1.Redo_();
             mypanel1.Focus_panel();
         }
@@ -266,6 +271,8 @@ namespace WindowsFormsExample
 
         private void Time_input_KeyPress(object sender, KeyPressEventArgs e)
         {
+            if (mypanel1.Undo_timer.Enabled) { return; }
+
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) //number only
             {
                 e.Handled = true;
@@ -279,6 +286,8 @@ namespace WindowsFormsExample
 
         private void NumofPanel_KeyPress(object sender, KeyPressEventArgs e)
         {
+            if (mypanel1.Undo_timer.Enabled) { return; }
+
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) //number only
             {
                 e.Handled = true;
@@ -287,6 +296,7 @@ namespace WindowsFormsExample
 
         private void Set_Click(object sender, EventArgs e)
         {
+            if (mypanel1.Undo_timer.Enabled) { return; }
             if (Time.Checked == true)
             {
                 mypanel1.Set_Step(Convert.ToInt32(Time_or_speed.Text));

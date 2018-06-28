@@ -55,6 +55,6 @@
 
         #endregion
 
-        private System.Windows.Forms.Timer Undo_timer;
+        public System.Windows.Forms.Timer Undo_timer;
     }
 }

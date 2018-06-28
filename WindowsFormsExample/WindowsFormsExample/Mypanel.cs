@@ -568,7 +568,7 @@ namespace WindowsFormsExample
 
                                 for (int i = 0; i < select_count[select_count.Count - 1]; i++)
                                 {
-
+                                    //
                                     int x = history_undo[history_undo.Count - 1 - i].target1.Left + (history_undo[history_undo.Count - 1 - i].local_x - history_undo[history_undo.Count - 1 - i].target1.Left) * step / steps;
                                     int y = history_undo[history_undo.Count - 1 - i].target1.Top + (history_undo[history_undo.Count - 1 - i].local_y - history_undo[history_undo.Count - 1 - i].target1.Top) * step / steps;
 

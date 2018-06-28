@@ -47,7 +47,7 @@
             this.button1.Location = new System.Drawing.Point(129, 10);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(133, 34);
-            this.button1.TabIndex = 1;
+            this.button1.TabIndex = 4;
             this.button1.Text = "Set panel";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -58,7 +58,7 @@
             this.save.Location = new System.Drawing.Point(268, 10);
             this.save.Name = "save";
             this.save.Size = new System.Drawing.Size(142, 34);
-            this.save.TabIndex = 2;
+            this.save.TabIndex = 5;
             this.save.Text = "Save";
             this.save.UseVisualStyleBackColor = true;
             this.save.Click += new System.EventHandler(this.Save_Click);
@@ -79,7 +79,7 @@
             this.load.Location = new System.Drawing.Point(416, 10);
             this.load.Name = "load";
             this.load.Size = new System.Drawing.Size(142, 34);
-            this.load.TabIndex = 3;
+            this.load.TabIndex = 6;
             this.load.Text = "Load";
             this.load.UseVisualStyleBackColor = true;
             this.load.Click += new System.EventHandler(this.load_Click);
@@ -90,7 +90,7 @@
             this.undo.Location = new System.Drawing.Point(565, 10);
             this.undo.Name = "undo";
             this.undo.Size = new System.Drawing.Size(102, 34);
-            this.undo.TabIndex = 4;
+            this.undo.TabIndex = 7;
             this.undo.Text = "Undo";
             this.undo.UseVisualStyleBackColor = true;
             this.undo.Click += new System.EventHandler(this.undo_Click);
@@ -101,7 +101,7 @@
             this.redo.Location = new System.Drawing.Point(673, 10);
             this.redo.Name = "redo";
             this.redo.Size = new System.Drawing.Size(102, 34);
-            this.redo.TabIndex = 5;
+            this.redo.TabIndex = 8;
             this.redo.Text = "Redo";
             this.redo.UseVisualStyleBackColor = true;
             this.redo.Click += new System.EventHandler(this.redo_Click);
@@ -111,7 +111,7 @@
             this.Time_or_speed.Location = new System.Drawing.Point(162, 64);
             this.Time_or_speed.Name = "Time_or_speed";
             this.Time_or_speed.Size = new System.Drawing.Size(100, 22);
-            this.Time_or_speed.TabIndex = 8;
+            this.Time_or_speed.TabIndex = 3;
             this.Time_or_speed.TextChanged += new System.EventHandler(this.Time_input_TextChanged);
             this.Time_or_speed.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Time_input_KeyPress);
             // 
@@ -121,7 +121,7 @@
             this.Speed.Location = new System.Drawing.Point(268, 79);
             this.Speed.Name = "Speed";
             this.Speed.Size = new System.Drawing.Size(113, 21);
-            this.Speed.TabIndex = 7;
+            this.Speed.TabIndex = 2;
             this.Speed.TabStop = true;
             this.Speed.Text = "Speed (Pixel)";
             this.Speed.UseVisualStyleBackColor = true;
@@ -135,7 +135,7 @@
             this.Time.Location = new System.Drawing.Point(268, 51);
             this.Time.Name = "Time";
             this.Time.Size = new System.Drawing.Size(221, 21);
-            this.Time.TabIndex = 6;
+            this.Time.TabIndex = 1;
             this.Time.TabStop = true;
             this.Time.Text = "Time undo animation (second)";
             this.Time.UseVisualStyleBackColor = true;
@@ -147,7 +147,7 @@
             this.button2.Location = new System.Drawing.Point(495, 58);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(92, 35);
-            this.button2.TabIndex = 11;
+            this.button2.TabIndex = 9;
             this.button2.Text = "Set";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.Set_Click);
@@ -181,7 +181,7 @@
             this.Controls.Add(this.button1);
             this.MaximizeBox = false;
             this.Name = "Form3";
-            this.Text = "Form3";
+            this.Text = "Panel";
             this.ResumeLayout(false);
             this.PerformLayout();
 
