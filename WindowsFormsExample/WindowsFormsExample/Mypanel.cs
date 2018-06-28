@@ -84,6 +84,7 @@ namespace WindowsFormsExample
             bluepanel.Location = new Point(x, y);
             bluepanel.BackColor = Color.Blue;
             bluepanel.Tag = this.Controls.Count;
+
             this.Controls.Add(bluepanel);
             bluepanel.MouseDown += Bluepanel_MouseDown;
             bluepanel.MouseMove += Bluepanel_MouseMove;
@@ -399,7 +400,7 @@ namespace WindowsFormsExample
         public void Focus_panel()
         {
             this.Focus();
-            Undo_timer.Enabled = false;
+            //Undo_timer.Enabled = false;
         }
         public void Undo_(object sender, EventArgs e)
         {
@@ -471,7 +472,7 @@ namespace WindowsFormsExample
         {
             int index_r = history_redo.Count();
             int index_u = history_undo.Count();
-            if (history_redo.Count != 0 && select_count_r.Count != 0 && selected_panel.Count == 0)
+            if (history_redo.Count != 0 && select_count_r.Count != 0 && selected_panel.Count == 0 && Undo_timer.Enabled == false)
             {
                 //Control target = history_redo[index_r - 1].target1;
                 //History hx = new History(target.Left, target.Top, target);
@@ -510,20 +511,26 @@ namespace WindowsFormsExample
         }
 
         EventHandler tick_animation;
-        public void Set_Step()
+       
+        int moving_speed;
+
+        
+        
+        public void Set_Step(int number) //time
         {
             step = 1;
-            steps = 20; //2 second
+            steps = number * 20; //step
             time = true;
-            Undo_timer.Interval = 100;
-
+            Undo_timer.Interval = 100; //fixed interval
         }
-        public void Set_Speed()
+        public void Set_Speed(int number) //speed
         {
             time = false;
             Undo_timer.Interval = 50;
+            moving_speed = number; //pixel
         }
         int step = 1, steps = 20; //2 second
+
         private void Undo_with_animation(object sender, EventArgs e)
         {
 
@@ -534,17 +541,20 @@ namespace WindowsFormsExample
             double distance;
             double undo_x = Math.Abs(history_undo[history_undo.Count - 1].target1.Left - history_undo[history_undo.Count - 1].local_x);
             double undo_y = Math.Abs(history_undo[history_undo.Count - 1].target1.Top - history_undo[history_undo.Count - 1].local_y);
-            //Static speed
-            int moving_speed_x = 4;
-            int moving_speed_y = 4;
-            //steps = (int)undo_x;
+         
+            
             distance = Math.Sqrt(undo_x * undo_x + undo_y * undo_y); //Pythagorean Theorem leg calculation
-            //steps = (int)distance;
-            Console.WriteLine("Distance = {0}", distance);
-
+            
+            
+            //Console.WriteLine("Undo x = {0}", undo_x);
+            //Console.WriteLine("Undo y = {0}", undo_y);
+            //Console.WriteLine("move x = {0}", moving_speed_x);
+            //Console.WriteLine("move y = {0}", moving_speed_y);
+            //Console.WriteLine(check);
+            
             if (time == true)
             {
-                tick_animation = (s2, e2) => //1 second move time.
+                tick_animation = (s2, e2) => //move time.
                 {
 
                     this.BeginInvoke(new MethodInvoker(() =>
@@ -563,42 +573,40 @@ namespace WindowsFormsExample
                                     int y = history_undo[history_undo.Count - 1 - i].target1.Top + (history_undo[history_undo.Count - 1 - i].local_y - history_undo[history_undo.Count - 1 - i].target1.Top) * step / steps;
 
                                     if (history_undo[history_undo.Count - 1 - i].target1.Left > history_undo[history_undo.Count - 1 - i].local_x) //current position and history
-                                {
+                                    {
 
-                                    //history_undo[history_undo.Count - 1 - i].target1.Left -= moving_speed_x;
-                                    history_undo[history_undo.Count - 1 - i].target1.Left = x;
+                                        //history_undo[history_undo.Count - 1 - i].target1.Left -= moving_speed_x;
+                                        history_undo[history_undo.Count - 1 - i].target1.Left = x;
                                     }
                                     if (history_undo[history_undo.Count - 1 - i].target1.Top > history_undo[history_undo.Count - 1 - i].local_y)
                                     {
-                                    //history_undo[history_undo.Count - 1 - i].target1.Top -= moving_speed_y;
-                                    history_undo[history_undo.Count - 1 - i].target1.Top = y;
+                                        //history_undo[history_undo.Count - 1 - i].target1.Top -= moving_speed_y;
+                                        history_undo[history_undo.Count - 1 - i].target1.Top = y;
                                     }
                                     if (history_undo[history_undo.Count - 1 - i].target1.Left < history_undo[history_undo.Count - 1 - i].local_x)
                                     {
-                                    //history_undo[history_undo.Count - 1 - i].target1.Left = moving_speed_x;
-                                    history_undo[history_undo.Count - 1 - i].target1.Left = x;
+                                        //history_undo[history_undo.Count - 1 - i].target1.Left += moving_speed_x;
+                                        history_undo[history_undo.Count - 1 - i].target1.Left = x;
                                     }
                                     if (history_undo[history_undo.Count - 1 - i].target1.Top < history_undo[history_undo.Count - 1 - i].local_y)
                                     {
-                                    //history_undo[history_undo.Count - 1 - i].target1.Top += moving_speed_y;
-                                    history_undo[history_undo.Count - 1 - i].target1.Top = y;
+                                        //history_undo[history_undo.Count - 1 - i].target1.Top += moving_speed_y;
+                                        history_undo[history_undo.Count - 1 - i].target1.Top = y;
                                     }
-                                //scrap
-                                if (step == 10)
+                                    //scrap
+                                    if (step == steps / 2)
                                     {
                                         history_undo[history_undo.Count - 1 - i].target1.Left = history_undo[history_undo.Count - 1 - i].local_x;
                                         history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
                                     }
-                               
 
-                            }
-                            step += 1;
+
+                                }
+                                step += 1;
 
                             }
                             else
-                            {
-
-                                
+                            { //finish
                                 Undo_timer.Enabled = false;
 
                                 for (int i = 0; i < select_count[select_count.Count - 1]; i++)
@@ -606,8 +614,8 @@ namespace WindowsFormsExample
                                     history_undo.RemoveAt(history_undo.Count - 1);
                                 }
                                 select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
-                            select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
-                            step = 1;
+                                select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
+                                step = 1;
                                 return;
 
                             }
@@ -622,16 +630,16 @@ namespace WindowsFormsExample
                 Undo_timer.Tick += tick_animation;
             } else
             {
-                //steps = (int)distance / 2;
-
-
+                
+                
                 tick_animation = (s2, e2) => //Fixed speed
                 {
                     this.BeginInvoke(new MethodInvoker(() =>
                     {
                         if (history_undo.Count != 0) //
                         {
-
+                            //Console.WriteLine(move);
+                            //Console.WriteLine(check);
                             if (history_undo[history_undo.Count - 1].target1.Left != history_undo[history_undo.Count - 1].local_x
                                        || history_undo[history_undo.Count - 1].target1.Top != history_undo[history_undo.Count - 1].local_y)
                             {
@@ -639,46 +647,41 @@ namespace WindowsFormsExample
                                 for (int i = 0; i < select_count[select_count.Count - 1]; i++)
                                 {
 
-                                    int x = history_undo[history_undo.Count - 1 - i].target1.Left + (history_undo[history_undo.Count - 1 - i].local_x - history_undo[history_undo.Count - 1 - i].target1.Left) * step / steps;
-                                    int y = history_undo[history_undo.Count - 1 - i].target1.Top + (history_undo[history_undo.Count - 1 - i].local_y - history_undo[history_undo.Count - 1 - i].target1.Top) * step / steps;
-
                                     if (history_undo[history_undo.Count - 1 - i].target1.Left > history_undo[history_undo.Count - 1 - i].local_x) //current position and history
                                     {
+                                       
+                                        history_undo[history_undo.Count - 1 - i].target1.Left -= moving_speed;
 
-                                        history_undo[history_undo.Count - 1 - i].target1.Left -= moving_speed_x;
-                                        
                                     }
                                     if (history_undo[history_undo.Count - 1 - i].target1.Top > history_undo[history_undo.Count - 1 - i].local_y)
                                     {
-                                        history_undo[history_undo.Count - 1 - i].target1.Top -= moving_speed_y;
-                                        
+                                      
+                                        history_undo[history_undo.Count - 1 - i].target1.Top -= moving_speed;
+
                                     }
                                     if (history_undo[history_undo.Count - 1 - i].target1.Left < history_undo[history_undo.Count - 1 - i].local_x)
                                     {
-                                        history_undo[history_undo.Count - 1 - i].target1.Left += moving_speed_x;
-                                        
+                                       
+                                        history_undo[history_undo.Count - 1 - i].target1.Left += moving_speed;
+
                                     }
                                     if (history_undo[history_undo.Count - 1 - i].target1.Top < history_undo[history_undo.Count - 1 - i].local_y)
                                     {
-                                        history_undo[history_undo.Count - 1 - i].target1.Top += moving_speed_y;
                                         
+                                        history_undo[history_undo.Count - 1 - i].target1.Top += moving_speed;
+
                                     }
-                                    //scrap
-                                    if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Left - history_undo[history_undo.Count - 1 - i].local_x) < moving_speed_x)
-                                    //if (step == steps / 4)
-                                    {
-                                        history_undo[history_undo.Count - 1 - i].target1.Left = history_undo[history_undo.Count - 1 - i].local_x;
-                                        //history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
-                                    }
-                                    if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Top - history_undo[history_undo.Count - 1 - i].local_y) < moving_speed_y)
-                                    //if (step == steps / 4)
+                                    if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Top - history_undo[history_undo.Count - 1 - i].local_y) < moving_speed)
                                     {
                                         history_undo[history_undo.Count - 1 - i].target1.Top = history_undo[history_undo.Count - 1 - i].local_y;
-
+                                    }
+                                    if (Math.Abs(history_undo[history_undo.Count - 1 - i].target1.Left - history_undo[history_undo.Count - 1 - i].local_x) < moving_speed)
+                                    {
+                                        history_undo[history_undo.Count - 1 - i].target1.Left = history_undo[history_undo.Count - 1 - i].local_x;
                                     }
 
+
                                 }
-                                step += 1;
 
                             }
                             else
@@ -691,7 +694,8 @@ namespace WindowsFormsExample
                                 }
                                 select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
                                 select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
-                                step = 1;
+                                
+                                //Set_Speed(fixed_number);
                                 return;
 
                             }

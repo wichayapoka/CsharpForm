@@ -22,6 +22,7 @@ namespace WindowsFormsExample
             InitializeComponent();
             this.ActiveControl = NumofPanel;
             Time.Checked = true;
+            
         }
         
         public class Blue
@@ -39,9 +40,21 @@ namespace WindowsFormsExample
         {
             
             string input = NumofPanel.Text;
-            if (!string.IsNullOrEmpty(input)) //not empty
+            if (!string.IsNullOrEmpty(input) && 
+               (!string.IsNullOrEmpty(Time_or_speed.Text))) //not empty
 
             {
+                //input validation (ctrl+v)
+                if (Time.Checked == true)
+                {
+                    mypanel1.Set_Step(Convert.ToInt32(Time_or_speed.Text));
+                }
+                if (Speed.Checked == true)
+                {
+                    mypanel1.Set_Speed(Convert.ToInt32(Time_or_speed.Text));
+                }   
+
+                //create panel
                 int number = Convert.ToInt32(input);
                 this.mypanel1.Controls.Clear();
                 for (int i = 0; i < number; i++)
@@ -49,12 +62,15 @@ namespace WindowsFormsExample
                     mypanel1.AddBluePanel(i * 10, i * 10);
                     mypanel1.Tag = i;
                 }
-                mypanel1.Focus_panel();
-                
-                
+                mypanel1.Focus_panel();  
             } else
             {
                 this.ActiveControl = NumofPanel; //input number
+                MessageBox.Show("Please enter a valid number.");
+                if (string.IsNullOrEmpty(Time_or_speed.Text))
+                {
+                    this.ActiveControl = Time_or_speed;
+                }
             }
             mypanel1.Clear();
             
@@ -87,20 +103,7 @@ namespace WindowsFormsExample
             mypanel1.Save_undo_Count();
             mypanel1.Focus_panel();
             p.Clear();
-            //using (FileStream fs = new FileStream("bluepoint_user.bin", FileMode.Create))
-            //using (BinaryWriter w = new BinaryWriter(fs))
-            //{
-            //    foreach (Control c in this.mypanel1.Controls)
-            //    {
-
-            //        //location
-            //        w.Write(c.Left); //X
-            //        w.Write(c.Top); //Y
-
-            //    }
-            //    fs.Flush();
-            //    mypanel1.Focus_panel();
-            //}
+           
 
         }
 
@@ -179,26 +182,20 @@ namespace WindowsFormsExample
                     mypanel1.Load_Select_Count((int)o);
                 }
             }
+            if (!string.IsNullOrEmpty(Time_or_speed.Text))
+            {
+                if (Time.Checked == true)
+                {
+                    mypanel1.Set_Step(Convert.ToInt32(Time_or_speed.Text));
+                }
+                if (Speed.Checked == true)
+                {
+                    mypanel1.Set_Speed(Convert.ToInt32(Time_or_speed.Text));
+                }
+            }
+            
             mypanel1.Focus_panel();
-            //using (FileStream fs = new FileStream("bluepoint_user.bin", FileMode.Open))
-            //using (BinaryReader r = new BinaryReader(fs))
-            //{
-
-            //    while (r.BaseStream.Position != r.BaseStream.Length)
-            //    {
-            //        Panel bluepanel = new Panel();
-            //        //location
-            //        left = r.ReadInt32();
-            //        top = r.ReadInt32();
-            //        //show blue panels
-            //        mypanel1.AddBluePanel(left, top);
-
-            //    }
-            //    mypanel1.Focus_panel();
-            //    fs.Flush();
-            //    mypanel1.Clear();
-
-            //}
+            
         }
 
         private void undo_Click(object sender, EventArgs e)
@@ -209,6 +206,7 @@ namespace WindowsFormsExample
 
         private void redo_Click(object sender, EventArgs e)
         {
+            
             mypanel1.Redo_();
             mypanel1.Focus_panel();
         }
@@ -232,29 +230,72 @@ namespace WindowsFormsExample
 
         private void Time_CheckedChanged(object sender, EventArgs e)
         {
-
+            
+            
         }
 
         private void Speed_CheckedChanged(object sender, EventArgs e)
         {
-
+           
         }
 
         private void Time_MouseClick(object sender, MouseEventArgs e) //selected
         {
-            mypanel1.Set_Step();
-            this.ActiveControl = NumofPanel;
+            this.ActiveControl = Time_or_speed;
         }
 
         private void Speed_MouseClick(object sender, MouseEventArgs e) //selected
         {
-            mypanel1.Set_Speed();
-            this.ActiveControl = NumofPanel;
+            this.ActiveControl = Time_or_speed;
         }
 
         private void Speed_MouseCaptureChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void Speed_input_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Time_input_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Time_input_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) //number only
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void NumofPanel_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void NumofPanel_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) //number only
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void Set_Click(object sender, EventArgs e)
+        {
+            if (Time.Checked == true)
+            {
+                mypanel1.Set_Step(Convert.ToInt32(Time_or_speed.Text));
+            }
+            if (Speed.Checked == true)
+            {
+                mypanel1.Set_Speed(Convert.ToInt32(Time_or_speed.Text));
+            }
+            mypanel1.Focus_panel();
         }
     }
 }
