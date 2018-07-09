@@ -38,6 +38,7 @@
             this.Speed = new System.Windows.Forms.RadioButton();
             this.Time = new System.Windows.Forms.RadioButton();
             this.button2 = new System.Windows.Forms.Button();
+            this.Load_server = new System.Windows.Forms.Button();
             this.mypanel1 = new WindowsFormsExample.Mypanel();
             this.SuspendLayout();
             // 
@@ -144,6 +145,7 @@
             // 
             // button2
             // 
+            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button2.Location = new System.Drawing.Point(495, 58);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(92, 35);
@@ -151,6 +153,17 @@
             this.button2.Text = "Set";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.Set_Click);
+            // 
+            // Load_server
+            // 
+            this.Load_server.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.Load_server.Location = new System.Drawing.Point(12, 58);
+            this.Load_server.Name = "Load_server";
+            this.Load_server.Size = new System.Drawing.Size(144, 35);
+            this.Load_server.TabIndex = 12;
+            this.Load_server.Text = "Load from server";
+            this.Load_server.UseVisualStyleBackColor = true;
+            this.Load_server.Click += new System.EventHandler(this.Load_server_Click);
             // 
             // mypanel1
             // 
@@ -168,6 +181,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 501);
+            this.Controls.Add(this.Load_server);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.Time_or_speed);
             this.Controls.Add(this.Speed);
@@ -182,6 +196,7 @@
             this.MaximizeBox = false;
             this.Name = "Form3";
             this.Text = "Panel";
+            this.Load += new System.EventHandler(this.Form3_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -200,5 +215,6 @@
         private System.Windows.Forms.RadioButton Speed;
         private System.Windows.Forms.RadioButton Time;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button Load_server;
     }
 }

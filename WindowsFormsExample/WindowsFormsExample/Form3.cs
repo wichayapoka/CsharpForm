@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
+using System.Net;
 namespace WindowsFormsExample
 {
     public partial class Form3 : Form
@@ -78,6 +78,7 @@ namespace WindowsFormsExample
         
         private void Save_Click(object sender, EventArgs e)
         {
+            
             if (mypanel1.Undo_timer.Enabled) { return; }
             using (FileStream fs = new FileStream("SavePanel.json", FileMode.Create))
             using (StreamWriter file = new StreamWriter(fs))
@@ -98,15 +99,31 @@ namespace WindowsFormsExample
 
                 }
                 json.Serialize(file, p);
+                
+                //json.Serialize(post, p);
 
             }
             mypanel1.Save_undo_Count();
+            //uploadstring
+            using (StreamReader fs1 = new StreamReader("SavePanel.json"))
+            using (StreamReader fs2 = new StreamReader("History.json"))
+            using (StreamReader fs3 = new StreamReader("ListCountHistory.json"))
+            {
+                string json1 = fs1.ReadToEnd();
+                string json2 = fs2.ReadToEnd();
+                string json3 = fs3.ReadToEnd();
+                string all = json1 + "|" + json2 + "|" + json3;
+                WebClient wb = new WebClient();
+                
+                
+                string result = wb.UploadString("http://localhost:8081/Undo_Data/post", all);
+            }
             mypanel1.Focus_panel();
             p.Clear();
-           
+            
 
         }
-
+        
         private void load_Click(object sender, EventArgs e)
         {
             if (mypanel1.Undo_timer.Enabled) { return; }
@@ -116,11 +133,8 @@ namespace WindowsFormsExample
             int left = 0, top = 0, tag = 0;
 
             using (StreamReader fs = new StreamReader("SavePanel.json"))
-            
             {
-                
                 string json = fs.ReadToEnd();
-
                 JArray a = JArray.Parse(json);
                 //Console.WriteLine(a);
                 foreach (JObject o in a.Children<JObject>())
@@ -177,11 +191,14 @@ namespace WindowsFormsExample
             using (StreamReader fs = new StreamReader("ListCountHistory.json"))
             {
                 string json = fs.ReadToEnd();
-                JArray undo = JArray.Parse(json);
-                foreach (JValue o in undo)
+                if (json != "")
                 {
-                    //Console.WriteLine(o);
-                    mypanel1.Load_Select_Count((int)o);
+                    JArray undo = JArray.Parse(json);
+                    foreach (JValue o in undo)
+                    {
+                        //Console.WriteLine(o);
+                        mypanel1.Load_Select_Count((int)o);
+                    }
                 }
             }
             if (!string.IsNullOrEmpty(Time_or_speed.Text))
@@ -306,6 +323,96 @@ namespace WindowsFormsExample
                 mypanel1.Set_Speed(Convert.ToInt32(Time_or_speed.Text));
             }
             mypanel1.Focus_panel();
+        }
+
+        private void save_server_Click(object sender, EventArgs e)
+        {
+            JsonSerializer json = new JsonSerializer();
+
+            //Blue one = new Blue();
+
+            foreach (Control c in this.mypanel1.Controls)
+            {
+                Blue one = new Blue();
+
+                one.X = c.Left;
+                one.Y = c.Top;
+                one.T = (int)c.Tag;
+                p.Add(one);
+
+            }
+            
+            
+        }
+
+        private void Load_server_Click(object sender, EventArgs e)
+        {
+            if (mypanel1.Undo_timer.Enabled) { return; }
+            WebClient wb = new WebClient();
+            string result = wb.DownloadString("http://localhost:8081/Undo_Data/post");
+            string[] Data = result.Split("|".ToCharArray());
+            JArray Blue_Panel = JArray.Parse(Data[0]);
+            JArray History = JArray.Parse(Data[1]);
+            JArray ListCount = JArray.Parse(Data[2]);
+            
+
+            this.mypanel1.Controls.Clear();
+            mypanel1.Clear();
+            int left = 0, top = 0, tag = 0;
+            //Panel
+            foreach (JObject o in Blue_Panel.Children<JObject>())
+            {
+                foreach (JProperty p in o.Properties())
+                {
+                    if (p.Name == "X")
+                    {
+                        left = (int)p.Value;
+                    }
+                    if (p.Name == "Y")
+                    {
+                        top = (int)p.Value;
+                    }
+                    
+                    //Console.WriteLine(p.Name);
+                }
+                mypanel1.AddBluePanel(left, top);
+            }
+            //Undo
+            foreach (JObject o in History.Children<JObject>())
+            {
+                foreach (JProperty p in o.Properties())
+                {
+                    if (p.Name == "X")
+                    {
+                        left = (int)p.Value;
+                    }
+                    if (p.Name == "Y")
+                    {
+                        top = (int)p.Value;
+                    }
+                    if (p.Name == "T")
+                    {
+                        tag = (int)p.Value;
+                    }
+                    //Console.WriteLine(p.Name);
+
+                }
+                mypanel1.Load_History_undo(left, top, tag);
+
+            }
+            mypanel1.Focus();
+            //ListCount
+            
+            foreach (JValue o in ListCount)
+            {
+                //Console.WriteLine(o);
+                mypanel1.Load_Select_Count((int)o);
+            }
+        }
+
+        private void Form3_Load(object sender, EventArgs e)
+        {
+            Time_or_speed.Text = "1"; //default 1 second time
         }
     }
 }

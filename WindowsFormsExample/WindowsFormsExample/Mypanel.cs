@@ -98,7 +98,7 @@ namespace WindowsFormsExample
 
         private void Bluepanel_MouseUp(object sender, MouseEventArgs e)
         {
-            
+            if (Undo_timer.Enabled) { return; }
             Control c = sender as Control;
             if (Control.ModifierKeys == Keys.Control || selected_panel.Count > 1) //selected, stay yellow
             {
@@ -127,7 +127,7 @@ namespace WindowsFormsExample
 
         private void Bluepanel_MouseMove(object sender, MouseEventArgs e)
         {
-
+            if (Undo_timer.Enabled) { return; }
             Control c = sender as Control;
 
             if (e.Button == MouseButtons.Left && Control.ModifierKeys != Keys.Control) //moving panel
@@ -151,7 +151,7 @@ namespace WindowsFormsExample
 
         private void Bluepanel_MouseDown(object sender, MouseEventArgs e)
         {
-
+            if (Undo_timer.Enabled) { return; }
             Control c = (Control)sender;
             drag = false;
             if (e.Button == MouseButtons.Left)
@@ -203,6 +203,7 @@ namespace WindowsFormsExample
 
         private void Mypanel_KeyDown(object sender, KeyEventArgs e)
         {
+            if (Undo_timer.Enabled) { return; }
             int count = this.Controls.Count;
             
             if (e.KeyCode == Keys.A && e.Modifiers == Keys.Control)
@@ -277,26 +278,26 @@ namespace WindowsFormsExample
 
         private void Mypanel_MouseDown(object sender, MouseEventArgs e) //clear
         {
-            if (!Undo_timer.Enabled)
+            if (Undo_timer.Enabled) { return; }
+
+            int index = history_undo.Count - 1;
+
+            foreach (Control selected in selected_panel)
             {
-                int index = history_undo.Count - 1;
-
-                foreach (Control selected in selected_panel)
+                Control deselect = selected as Control;
+                deselect.BackColor = Color.Blue;
+                if (drag == false)
                 {
-                    Control deselect = selected as Control;
-                    deselect.BackColor = Color.Blue;
-                    if (drag == false)
-                    {
-                        history_undo.RemoveAt(history_undo.Count - 1);
-                    }
-
-                    index -= 1;
+                    history_undo.RemoveAt(history_undo.Count - 1);
                 }
-                drag = false;
-                selected_panel.Clear();
+
+                index -= 1;
+            }
+            drag = false;
+            selected_panel.Clear();
                 //Point
 
-            }
+            
             selectionStart = e.Location;
         }
 
@@ -326,6 +327,8 @@ namespace WindowsFormsExample
 
         private void Mypanel_MouseUp(object sender, MouseEventArgs e)
         {
+            if (Undo_timer.Enabled) { return; }
+
             selectionEnd = e.Location;
             int x, y; //point
             int width, height; //size
@@ -404,7 +407,7 @@ namespace WindowsFormsExample
         }
         public void Undo_(object sender, EventArgs e)
         {
-            
+            if (Undo_timer.Enabled) { return; }
             //int index_u = history_undo.Count();
             Console.WriteLine("History = {0}", history_undo.Count);
             
@@ -470,6 +473,7 @@ namespace WindowsFormsExample
         }
         public void Redo_()
         {
+            if (Undo_timer.Enabled) { return; }
             int index_r = history_redo.Count();
             int index_u = history_undo.Count();
             if (history_redo.Count != 0 && select_count_r.Count != 0 && selected_panel.Count == 0 && Undo_timer.Enabled == false)
@@ -514,14 +518,14 @@ namespace WindowsFormsExample
        
         int moving_speed;
 
-        
-        
+
+        int step = 1, steps = 20; //1 second
         public void Set_Step(int number) //time
         {
             step = 1;
             steps = number * 20; //step
             time = true;
-            Undo_timer.Interval = 100; //fixed interval
+            Undo_timer.Interval = 100; //0.1 s fixed interval
         }
         public void Set_Speed(int number) //speed
         {
@@ -529,7 +533,7 @@ namespace WindowsFormsExample
             Undo_timer.Interval = 50;
             moving_speed = number; //pixel
         }
-        int step = 1, steps = 20; //2 second
+        
 
         private void Undo_with_animation(object sender, EventArgs e)
         {
