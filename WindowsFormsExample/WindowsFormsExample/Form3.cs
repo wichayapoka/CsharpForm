@@ -32,15 +32,16 @@ namespace WindowsFormsExample
             {
                 get; set;
             }
-            public int T { get; set; }
+            public object T { get; set; }
+            public string Text = null;
         }
         List<Blue> p = new List<Blue>();
 
         private void button1_Click(object sender, EventArgs e)
         {
             if (mypanel1.Undo_timer.Enabled) { return; }
-            string input = NumofPanel.Text;
-            if (!string.IsNullOrEmpty(input) && 
+            //string input = NumofPanel.Text;
+            if (!string.IsNullOrEmpty(NumofPanel.Text) && 
                (!string.IsNullOrEmpty(Time_or_speed.Text))) //not empty
 
             {
@@ -55,7 +56,7 @@ namespace WindowsFormsExample
                 }   
 
                 //create panel
-                int number = Convert.ToInt32(input);
+                int number = Convert.ToInt32(NumofPanel.Text);
                 this.mypanel1.Controls.Clear();
                 for (int i = 0; i < number; i++)
                 {
@@ -80,21 +81,35 @@ namespace WindowsFormsExample
         {
             
             if (mypanel1.Undo_timer.Enabled) { return; }
+            if (this.mypanel1.Controls.Count == 0)
+            {
+                MessageBox.Show("No data has been saved");
+                return;
+            }
+            mypanel1.ExportPictureBox();
             using (FileStream fs = new FileStream("SavePanel.json", FileMode.Create))
             using (StreamWriter file = new StreamWriter(fs))
                
             {
                 JsonSerializer json = new JsonSerializer();
 
-                //Blue one = new Blue();
-
+                
                 foreach (Control c in this.mypanel1.Controls)
                 {
                     Blue one = new Blue();
 
                     one.X = c.Left;
                     one.Y = c.Top;
-                    one.T = (int)c.Tag;
+                    one.T = c.Tag;
+                    if (c is TextBox && c.Text == "")
+                    {
+                        one.Text = "TextBox";
+                    } else if (c.Tag.ToString() == "PicBox")
+                    {
+                        one.Text = mypanel1.base64String;
+                    }
+                    else { one.Text = c.Text; }
+                    
                     p.Add(one);
 
                 }
@@ -104,6 +119,7 @@ namespace WindowsFormsExample
 
             }
             mypanel1.Save_undo_Count();
+            
             //uploadstring
             using (StreamReader fs1 = new StreamReader("SavePanel.json"))
             using (StreamReader fs2 = new StreamReader("History.json"))
@@ -114,9 +130,11 @@ namespace WindowsFormsExample
                 string json3 = fs3.ReadToEnd();
                 string all = json1 + "|" + json2 + "|" + json3;
                 WebClient wb = new WebClient();
-                
-                
-                string result = wb.UploadString("http://localhost:8081/Undo_Data/post", all);
+
+
+                //string result = wb.UploadString("http://localhost:8081/Undo_Data/post", all);
+                string result = wb.UploadString("http://10.80.119.175:8081/Undo_Data/Panel_Data", all);
+                MessageBox.Show("Save success");
             }
             mypanel1.Focus_panel();
             p.Clear();
@@ -130,31 +148,49 @@ namespace WindowsFormsExample
 
             this.mypanel1.Controls.Clear();
             mypanel1.Clear();
-            int left = 0, top = 0, tag = 0;
-
+            int left = 0, top = 0;
+            string tag = null;
+            string text = "";
             using (StreamReader fs = new StreamReader("SavePanel.json"))
             {
                 string json = fs.ReadToEnd();
                 JArray a = JArray.Parse(json);
                 //Console.WriteLine(a);
                 foreach (JObject o in a.Children<JObject>())
-                {
-                    
+                { 
                     foreach (JProperty p in o.Properties())
                     {
                         if (p.Name == "X")
                         {
-                            left = (int)p.Value;
+                            left = (int)p.Value; //x
                         } if (p.Name == "Y")
                         {
-                            top = (int)p.Value;
+                            top = (int)p.Value; //y
                         } if (p.Name == "T")
                         {
-                            tag = (int)p.Value;
+                            tag = (string)p.Value;
+                        } if (p.Name == "Text")
+                        {
+                            text = (string)p.Value;
                         }
                         //Console.WriteLine(p.Name);
                     }
-                    mypanel1.AddBluePanel(left, top);
+                    if (tag == "PicBox")
+                    {
+                        mypanel1.LoadPictureBox(left, top, text);
+                    }
+                    else if (text == "TextBox" || text != "")
+                    {
+                        if (text == "TextBox")
+                        {
+                            text = "";
+                        }
+                        mypanel1.Create_Textbox(left, top, text);
+                    } else
+                    {
+                        mypanel1.AddBluePanel(left, top);
+                    }
+                    
                 }
                 
             }
@@ -177,10 +213,10 @@ namespace WindowsFormsExample
                         }
                         if (p.Name == "T")
                         {
-                            tag = (int)p.Value;
+                            tag = (string)p.Value;
+
                         }
                         //Console.WriteLine(p.Name);
-                        
                     }
                     mypanel1.Load_History_undo(left, top, tag);
                     
@@ -283,7 +319,9 @@ namespace WindowsFormsExample
 
         private void Time_input_TextChanged(object sender, EventArgs e)
         {
-
+            //Size size = TextRenderer.MeasureText(Time_or_speed.Text, Time_or_speed.Font);
+            //Time_or_speed.Width = size.Width;
+            //Time_or_speed.Height = size.Height;
         }
 
         private void Time_input_KeyPress(object sender, KeyPressEventArgs e)
@@ -349,7 +387,13 @@ namespace WindowsFormsExample
         {
             if (mypanel1.Undo_timer.Enabled) { return; }
             WebClient wb = new WebClient();
-            string result = wb.DownloadString("http://localhost:8081/Undo_Data/post");
+            //string result = wb.DownloadString("http://localhost:8081/Undo_Data/post");
+            string result = wb.DownloadString("http://10.80.119.175:8081/Undo_Data/Panel_Data");
+            if (result == "No Data")
+            {
+                MessageBox.Show("No data from a server.");
+                return;
+            }
             string[] Data = result.Split("|".ToCharArray());
             JArray Blue_Panel = JArray.Parse(Data[0]);
             JArray History = JArray.Parse(Data[1]);
@@ -358,7 +402,9 @@ namespace WindowsFormsExample
 
             this.mypanel1.Controls.Clear();
             mypanel1.Clear();
-            int left = 0, top = 0, tag = 0;
+            int left = 0, top = 0;
+            string tag = null;
+            string text = "";
             //Panel
             foreach (JObject o in Blue_Panel.Children<JObject>())
             {
@@ -371,11 +417,33 @@ namespace WindowsFormsExample
                     if (p.Name == "Y")
                     {
                         top = (int)p.Value;
+                    } if (p.Name == "T")
+                    {
+                        tag = (string)p.Value;
+                    } if (p.Name == "Text")
+                    {
+                        text = (string)p.Value;
                     }
                     
                     //Console.WriteLine(p.Name);
                 }
-                mypanel1.AddBluePanel(left, top);
+                if (tag == "PicBox")
+                {
+                    mypanel1.LoadPictureBox(left, top, text);
+                }
+                else if (text == "TextBox" || text != "")
+                {
+                    if (text == "TextBox")
+                    {
+                        text = "";
+                    }
+                    mypanel1.Create_Textbox(left, top, text);
+                }
+                else
+                {
+                    mypanel1.AddBluePanel(left, top);
+                }
+                
             }
             //Undo
             foreach (JObject o in History.Children<JObject>())
@@ -392,7 +460,7 @@ namespace WindowsFormsExample
                     }
                     if (p.Name == "T")
                     {
-                        tag = (int)p.Value;
+                        tag = (string)p.Value;
                     }
                     //Console.WriteLine(p.Name);
 
@@ -414,5 +482,22 @@ namespace WindowsFormsExample
         {
             Time_or_speed.Text = "1"; //default 1 second time
         }
+        int createTextbox_count = 0;
+
+        private void Add_textbox_Click(object sender, EventArgs e)
+        {
+            if (mypanel1.Controls.Count == 0) { MessageBox.Show("Please set panel first."); return; }
+            mypanel1.Create_Textbox(0, createTextbox_count * 40, "");
+            createTextbox_count += 1;
+        }
+
+        private void picture_Click(object sender, EventArgs e)
+        {
+            if (mypanel1.Controls.Count == 0) { MessageBox.Show("Please set panel first."); return; }
+            mypanel1.ImportPictureBox();
+        }
+        
+        
     }
+    
 }

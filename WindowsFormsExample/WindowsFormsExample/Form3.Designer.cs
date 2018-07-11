@@ -39,6 +39,8 @@
             this.Time = new System.Windows.Forms.RadioButton();
             this.button2 = new System.Windows.Forms.Button();
             this.Load_server = new System.Windows.Forms.Button();
+            this.Add_textbox = new System.Windows.Forms.Button();
+            this.picture = new System.Windows.Forms.Button();
             this.mypanel1 = new WindowsFormsExample.Mypanel();
             this.SuspendLayout();
             // 
@@ -58,7 +60,7 @@
             this.save.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
             this.save.Location = new System.Drawing.Point(268, 10);
             this.save.Name = "save";
-            this.save.Size = new System.Drawing.Size(142, 34);
+            this.save.Size = new System.Drawing.Size(113, 34);
             this.save.TabIndex = 5;
             this.save.Text = "Save";
             this.save.UseVisualStyleBackColor = true;
@@ -77,9 +79,9 @@
             // load
             // 
             this.load.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.load.Location = new System.Drawing.Point(416, 10);
+            this.load.Location = new System.Drawing.Point(387, 10);
             this.load.Name = "load";
-            this.load.Size = new System.Drawing.Size(142, 34);
+            this.load.Size = new System.Drawing.Size(102, 34);
             this.load.TabIndex = 6;
             this.load.Text = "Load";
             this.load.UseVisualStyleBackColor = true;
@@ -88,7 +90,7 @@
             // undo
             // 
             this.undo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.undo.Location = new System.Drawing.Point(565, 10);
+            this.undo.Location = new System.Drawing.Point(495, 10);
             this.undo.Name = "undo";
             this.undo.Size = new System.Drawing.Size(102, 34);
             this.undo.TabIndex = 7;
@@ -99,7 +101,7 @@
             // redo
             // 
             this.redo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.redo.Location = new System.Drawing.Point(673, 10);
+            this.redo.Location = new System.Drawing.Point(603, 10);
             this.redo.Name = "redo";
             this.redo.Size = new System.Drawing.Size(102, 34);
             this.redo.TabIndex = 8;
@@ -165,12 +167,33 @@
             this.Load_server.UseVisualStyleBackColor = true;
             this.Load_server.Click += new System.EventHandler(this.Load_server_Click);
             // 
+            // Add_textbox
+            // 
+            this.Add_textbox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.Add_textbox.Location = new System.Drawing.Point(593, 58);
+            this.Add_textbox.Name = "Add_textbox";
+            this.Add_textbox.Size = new System.Drawing.Size(130, 35);
+            this.Add_textbox.TabIndex = 13;
+            this.Add_textbox.Text = "Add textbox";
+            this.Add_textbox.UseVisualStyleBackColor = true;
+            this.Add_textbox.Click += new System.EventHandler(this.Add_textbox_Click);
+            // 
+            // picture
+            // 
+            this.picture.Location = new System.Drawing.Point(730, 58);
+            this.picture.Name = "picture";
+            this.picture.Size = new System.Drawing.Size(98, 35);
+            this.picture.TabIndex = 14;
+            this.picture.Text = "browse file";
+            this.picture.UseVisualStyleBackColor = true;
+            this.picture.Click += new System.EventHandler(this.picture_Click);
+            // 
             // mypanel1
             // 
             this.mypanel1.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.mypanel1.Location = new System.Drawing.Point(12, 103);
             this.mypanel1.Name = "mypanel1";
-            this.mypanel1.Size = new System.Drawing.Size(776, 386);
+            this.mypanel1.Size = new System.Drawing.Size(816, 386);
             this.mypanel1.TabIndex = 10;
             this.mypanel1.Load += new System.EventHandler(this.mypanel1_Load);
             this.mypanel1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mypanel1_KeyDown);
@@ -180,7 +203,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 501);
+            this.ClientSize = new System.Drawing.Size(840, 501);
+            this.Controls.Add(this.picture);
+            this.Controls.Add(this.Add_textbox);
             this.Controls.Add(this.Load_server);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.Time_or_speed);
@@ -216,5 +241,7 @@
         private System.Windows.Forms.RadioButton Time;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button Load_server;
+        private System.Windows.Forms.Button Add_textbox;
+        private System.Windows.Forms.Button picture;
     }
 }

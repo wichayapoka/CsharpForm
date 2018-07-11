@@ -48,6 +48,7 @@
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Mypanel_KeyPress);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Mypanel_KeyUp);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Mypanel_MouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Mypanel_MouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Mypanel_MouseUp);
             this.ResumeLayout(false);
 

@@ -53,9 +53,11 @@ namespace WindowsFormsExample
            
             public int X { get; set; }
             public int Y { get; set; }
-            public int T { get; set; }
+            public object T { get; set; }
 
         }
+        public string base64String;
+        
         //drag selection
         private Point selectionStart;
         private Point selectionEnd;
@@ -84,11 +86,163 @@ namespace WindowsFormsExample
             bluepanel.Location = new Point(x, y);
             bluepanel.BackColor = Color.Blue;
             bluepanel.Tag = this.Controls.Count;
-
+            
             this.Controls.Add(bluepanel);
             bluepanel.MouseDown += Bluepanel_MouseDown;
             bluepanel.MouseMove += Bluepanel_MouseMove;
             bluepanel.MouseUp += Bluepanel_MouseUp;
+            
+           
+        }
+        public void Create_Textbox(int x, int y, string text)
+        {
+            TextBox txt = new TextBox();
+            txt.Name = "text" + this.Controls.Count;
+            txt.Text = text;
+            txt.Location = new Point(x, y);
+            txt.Multiline = true;
+            txt.Size = new Size(90, 30);
+            txt.Tag = this.Controls.Count;
+            txt.MouseDown += Txt_MouseDown;
+            txt.MouseMove += Txt_MouseMove;
+            txt.MouseUp += Txt_MouseUp;
+            txt.MouseDown += Bluepanel_MouseDown;
+            txt.MouseMove += Bluepanel_MouseMove;
+            txt.MouseUp += Bluepanel_MouseUp;
+            //bluepanel.Controls.Add(txt);
+            this.Controls.Add(txt); 
+            
+        }
+        public string filePhotoPath;
+        public void ImportPictureBox()
+        {
+            foreach (Control pic in this.Controls)
+            {
+                
+                if (pic.Tag.ToString() == "PicBox")
+                {
+                    this.Controls.Remove(pic);
+                }
+            }
+            
+            OpenFileDialog opf = new OpenFileDialog();
+            opf.Filter = "Choose Image(*.jpg;*.png)|*.jpg;*.png";
+            if (opf.ShowDialog() == DialogResult.OK)
+            {
+                PictureBox newptb = new PictureBox();
+                Panel picture_panel = new Panel();
+                picture_panel.Size = new Size(50, 50);
+                picture_panel.BackColor = Color.Blue;
+                newptb.Location = new Point(picture_panel.Left + 9, picture_panel.Top + 10);
+                var image = Image.FromFile(opf.FileName);
+                newptb.Image = image;
+                newptb.SizeMode = PictureBoxSizeMode.StretchImage;
+                newptb.Size = new Size(32, 32);
+                //newptb.Tag = 0;
+                picture_panel.Controls.Add(newptb);
+                picture_panel.Tag = "PicBox";
+                picture_panel.MouseMove += Bluepanel_MouseMove;
+                picture_panel.MouseUp += Bluepanel_MouseUp;
+                picture_panel.MouseDown += Bluepanel_MouseDown;
+                this.Controls.Add(picture_panel); //Panel
+                filePhotoPath = opf.FileName;
+
+            }
+        }
+        public void ExportPictureBox()
+        {
+            using (Image image = Image.FromFile(filePhotoPath))
+            {
+                using (MemoryStream m = new MemoryStream())
+                {
+                    image.Save(m, image.RawFormat);
+                    byte[] imageBytes = m.ToArray();
+
+                    // Convert byte[] to Base64 String
+                    base64String = Convert.ToBase64String(imageBytes);
+                }
+            }
+            
+        }
+        public void LoadPictureBox(int x, int y, string base64)
+        {
+            
+            PictureBox newPtb = new PictureBox();
+            Panel picture_panel = new Panel();
+            picture_panel.Size = new Size(50, 50);
+            picture_panel.BackColor = Color.Blue;
+            picture_panel.Location = new Point(x, y);
+            picture_panel.Tag = "PicBox";
+
+            Byte[] bytes = Convert.FromBase64String(base64);
+            using (var ms = new MemoryStream(bytes, 0, bytes.Length))
+            {
+                Image image = Image.FromStream(ms, true);
+                newPtb.Image = image;
+                newPtb.Size = new Size(32, 32);
+                newPtb.SizeMode = PictureBoxSizeMode.StretchImage;
+                newPtb.Location = new Point(9, 10); ////////
+                picture_panel.Controls.Add(newPtb);
+            }
+            picture_panel.MouseMove += Bluepanel_MouseMove;
+            picture_panel.MouseUp += Bluepanel_MouseUp;
+            picture_panel.MouseDown += Bluepanel_MouseDown;
+            this.Controls.Add(picture_panel);
+        }
+        bool resize = false; //textBox
+        private void Txt_MouseUp(object sender, MouseEventArgs e)
+        {
+            resize = false;
+        }
+
+        private void Txt_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (resize == false) { return; }
+            if (e.Button == MouseButtons.Left && resize == true)
+            {
+                Control c = (Control)sender;
+                var height = Math.Abs(c.Top + e.Y - c.Location.Y);
+                var width = Math.Abs(c.Left + e.X - c.Location.X);
+                c.Size = new Size(width, height);
+            }
+            
+
+        }
+
+        
+
+        private void Txt_MouseDown(object sender, MouseEventArgs e)
+        {
+            Control c = (Control)sender;
+            Console.WriteLine(e.Location);
+            Console.WriteLine(c.Size);
+            resize = false;
+            if (Math.Abs(e.X - c.Width) <= 7 && Math.Abs(e.Y - c.Height) <= 7) //bottom right
+            {
+                resize = true;
+            }
+            else if (Math.Abs(e.X - c.Width) <= 7 && e.Y <= 5) //top right
+            {
+                resize = true;
+            }
+            else if (e.X <= 2 && e.Y <= 2) //top left
+            {
+                resize = true;
+            } 
+            else if (e.X <= 2 && Math.Abs(e.Y - c.Height) <= 7) // bottom left
+            {
+                resize = true;
+            }
+            
+        }
+
+        
+
+        
+
+        private void Bluepanel_Resize(object sender, EventArgs e)
+        {
+            //throw new NotImplementedException();
         }
 
         private void Bluepanel_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
@@ -98,7 +252,7 @@ namespace WindowsFormsExample
 
         private void Bluepanel_MouseUp(object sender, MouseEventArgs e)
         {
-            if (Undo_timer.Enabled) { return; }
+            if (Undo_timer.Enabled || resize == true) { return; }
             Control c = sender as Control;
             if (Control.ModifierKeys == Keys.Control || selected_panel.Count > 1) //selected, stay yellow
             {
@@ -127,7 +281,7 @@ namespace WindowsFormsExample
 
         private void Bluepanel_MouseMove(object sender, MouseEventArgs e)
         {
-            if (Undo_timer.Enabled) { return; }
+            if (Undo_timer.Enabled || resize == true) { return; }
             Control c = sender as Control;
 
             if (e.Button == MouseButtons.Left && Control.ModifierKeys != Keys.Control) //moving panel
@@ -151,7 +305,7 @@ namespace WindowsFormsExample
 
         private void Bluepanel_MouseDown(object sender, MouseEventArgs e)
         {
-            if (Undo_timer.Enabled) { return; }
+            if (Undo_timer.Enabled || resize == true) { return; }
             Control c = (Control)sender;
             drag = false;
             if (e.Button == MouseButtons.Left)
@@ -279,7 +433,7 @@ namespace WindowsFormsExample
         private void Mypanel_MouseDown(object sender, MouseEventArgs e) //clear
         {
             if (Undo_timer.Enabled) { return; }
-
+            //this.Focus();
             int index = history_undo.Count - 1;
 
             foreach (Control selected in selected_panel)
@@ -725,7 +879,7 @@ namespace WindowsFormsExample
 
                 one.X = hx.local_x;
                 one.Y = hx.local_y;
-                one.T = (int)hx.target1.Tag;
+                one.T = hx.target1.Tag;
                 
                 undo_j.Add(one);
             
@@ -761,11 +915,11 @@ namespace WindowsFormsExample
 
 
         }
-        public void Load_History_undo(int x, int y, int tag) //load json
+        public void Load_History_undo(int x, int y, string tag) //load json
         {
             foreach (Control load in this.Controls)
             {
-                if ((int)load.Tag == tag)
+                if (load.Tag.ToString() == tag)
                 {
                     History hx = new History(x, y, load);
                     history_undo.Add(hx);
@@ -777,6 +931,11 @@ namespace WindowsFormsExample
         public void Load_Select_Count(int select) //load json
         {
             select_count.Add(select);
+        }
+
+        private void Mypanel_MouseMove(object sender, MouseEventArgs e)
+        {
+
         }
 
         private void Undo_timer1_Tick(object sender, EventArgs e)
