@@ -37,7 +37,7 @@ namespace WindowsFormsExample
         }
         List<Blue> p = new List<Blue>();
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Set_Panel(object sender, EventArgs e)
         {
             if (mypanel1.Undo_timer.Enabled) { return; }
             //string input = NumofPanel.Text;
@@ -57,7 +57,14 @@ namespace WindowsFormsExample
 
                 //create panel
                 int number = Convert.ToInt32(NumofPanel.Text);
-                this.mypanel1.Controls.Clear();
+
+                //this.mypanel1.Controls.Clear();
+                int control_count = mypanel1.Controls.Count;
+                for (int i = 0; i < control_count - 1; i++) //except textbox1 for focus
+                {
+                    mypanel1.Controls.RemoveAt(mypanel1.Controls.Count - 1);
+                }
+
                 for (int i = 0; i < number; i++)
                 {
                     mypanel1.AddBluePanel(i * 10, i * 10);
@@ -81,7 +88,7 @@ namespace WindowsFormsExample
         {
             
             if (mypanel1.Undo_timer.Enabled) { return; }
-            if (this.mypanel1.Controls.Count == 0)
+            if (this.mypanel1.Controls.Count == 1)
             {
                 MessageBox.Show("No data has been saved");
                 return;
@@ -96,6 +103,10 @@ namespace WindowsFormsExample
                 
                 foreach (Control c in this.mypanel1.Controls)
                 {
+                    if (c.Tag.ToString() == "focus")
+                    {
+                        continue;
+                    }
                     Blue one = new Blue();
 
                     one.X = c.Left;
@@ -146,7 +157,12 @@ namespace WindowsFormsExample
         {
             if (mypanel1.Undo_timer.Enabled) { return; }
 
-            this.mypanel1.Controls.Clear();
+            //this.mypanel1.Controls.Clear();
+            int control_count = mypanel1.Controls.Count;
+            for (int i = 0; i < control_count - 1; i++) //except textbox1 for focus
+            {
+                mypanel1.Controls.RemoveAt(mypanel1.Controls.Count - 1);
+            }
             mypanel1.Clear();
             int left = 0, top = 0;
             string tag = null;
@@ -282,6 +298,7 @@ namespace WindowsFormsExample
         private void mypanel1_MouseDown(object sender, MouseEventArgs e)
         {
             //this.Text = "Clear";
+            
         }
 
         
@@ -398,9 +415,14 @@ namespace WindowsFormsExample
             JArray Blue_Panel = JArray.Parse(Data[0]);
             JArray History = JArray.Parse(Data[1]);
             JArray ListCount = JArray.Parse(Data[2]);
-            
 
-            this.mypanel1.Controls.Clear();
+
+            //this.mypanel1.Controls.Clear();
+            int control_count = mypanel1.Controls.Count;
+            for (int i = 0; i < control_count - 1; i++) //except textbox1 for focus
+            {
+                mypanel1.Controls.RemoveAt(mypanel1.Controls.Count - 1);
+            }
             mypanel1.Clear();
             int left = 0, top = 0;
             string tag = null;
@@ -486,14 +508,14 @@ namespace WindowsFormsExample
 
         private void Add_textbox_Click(object sender, EventArgs e)
         {
-            if (mypanel1.Controls.Count == 0) { MessageBox.Show("Please set panel first."); return; }
+            //if (mypanel1.Controls.Count == 0) { MessageBox.Show("Please set panel first."); return; }
             mypanel1.Create_Textbox(0, createTextbox_count * 40, "");
-            createTextbox_count += 1;
+            //createTextbox_count += 1;
         }
 
         private void picture_Click(object sender, EventArgs e)
         {
-            if (mypanel1.Controls.Count == 0) { MessageBox.Show("Please set panel first."); return; }
+            //if (mypanel1.Controls.Count == 0) { MessageBox.Show("Please set panel first."); return; }
             mypanel1.ImportPictureBox();
         }
         

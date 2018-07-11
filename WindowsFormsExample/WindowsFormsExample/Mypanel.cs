@@ -54,6 +54,8 @@ namespace WindowsFormsExample
             public int X { get; set; }
             public int Y { get; set; }
             public object T { get; set; }
+            public int Tb_size_x { get; set; }
+            public int Tb_size_y { get; set; }
 
         }
         public string base64String;
@@ -75,9 +77,19 @@ namespace WindowsFormsExample
         {
             InitializeComponent();
             Undo_timer.Enabled = false;
-            //Undo_timer.AutoReset = false;
+            this.textBox1.Location = new Point(-this.textBox1.Width, -this.textBox1.Height);
+            this.textBox1.Text = "focus";
+            this.textBox1.Tag = "focus";
+            this.textBox1.KeyDown += TextBox1_KeyDown;
+            
 
         }
+
+        private void TextBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            Mypanel_KeyDown(sender, e);
+        }
+
         public void AddBluePanel(int x, int y)
         {
             //event delegate
@@ -97,7 +109,7 @@ namespace WindowsFormsExample
         public void Create_Textbox(int x, int y, string text)
         {
             TextBox txt = new TextBox();
-            txt.Name = "text" + this.Controls.Count;
+            
             txt.Text = text;
             txt.Location = new Point(x, y);
             txt.Multiline = true;
@@ -109,11 +121,13 @@ namespace WindowsFormsExample
             txt.MouseDown += Bluepanel_MouseDown;
             txt.MouseMove += Bluepanel_MouseMove;
             txt.MouseUp += Bluepanel_MouseUp;
+            
             //bluepanel.Controls.Add(txt);
             this.Controls.Add(txt); 
             
         }
         public string filePhotoPath;
+        public int ptbMode;
         public void ImportPictureBox()
         {
             foreach (Control pic in this.Controls)
@@ -146,23 +160,32 @@ namespace WindowsFormsExample
                 picture_panel.MouseDown += Bluepanel_MouseDown;
                 this.Controls.Add(picture_panel); //Panel
                 filePhotoPath = opf.FileName;
-
+                ptbMode = 0;
             }
         }
         public void ExportPictureBox()
         {
-            using (Image image = Image.FromFile(filePhotoPath))
+            if (filePhotoPath == null)
             {
-                using (MemoryStream m = new MemoryStream())
+                return;
+            }
+            if (ptbMode == 0)
+            {
+                using (Image image = Image.FromFile(filePhotoPath))
                 {
-                    image.Save(m, image.RawFormat);
-                    byte[] imageBytes = m.ToArray();
+                    using (MemoryStream m = new MemoryStream())
+                    {
+                        image.Save(m, image.RawFormat);
+                        byte[] imageBytes = m.ToArray();
 
-                    // Convert byte[] to Base64 String
-                    base64String = Convert.ToBase64String(imageBytes);
+                        // Convert byte[] to Base64 String
+                        base64String = Convert.ToBase64String(imageBytes);
+                    }
                 }
             }
-            
+            else if (ptbMode == 1) {
+                base64String = filePhotoPath;
+            }
         }
         public void LoadPictureBox(int x, int y, string base64)
         {
@@ -183,11 +206,13 @@ namespace WindowsFormsExample
                 newPtb.SizeMode = PictureBoxSizeMode.StretchImage;
                 newPtb.Location = new Point(9, 10); ////////
                 picture_panel.Controls.Add(newPtb);
+                filePhotoPath = base64;
             }
             picture_panel.MouseMove += Bluepanel_MouseMove;
             picture_panel.MouseUp += Bluepanel_MouseUp;
             picture_panel.MouseDown += Bluepanel_MouseDown;
             this.Controls.Add(picture_panel);
+            ptbMode = 1;
         }
         bool resize = false; //textBox
         private void Txt_MouseUp(object sender, MouseEventArgs e)
@@ -233,7 +258,15 @@ namespace WindowsFormsExample
             {
                 resize = true;
             }
-            
+            if (resize == true)
+            {
+                Undo_json size = new Undo_json();
+                size.Tb_size_x = c.Width;
+                size.Tb_size_y = c.Height;
+                size.X = c.Location.X;
+                size.Y = c.Location.Y;
+                size.T = c.Tag.ToString();
+            }
         }
 
         
@@ -271,8 +304,11 @@ namespace WindowsFormsExample
                     select_count.Add(selected_panel.Count);
                     //AddSelect_count(); //save to json
                 }
-               
-                c.BackColor = Color.Blue;
+                if (!(c is TextBox))
+                {
+                    c.BackColor = Color.Blue;
+                }
+                
                 //Console.WriteLine(panel_history.Count);
                 selected_panel.Clear();
             }
@@ -315,7 +351,11 @@ namespace WindowsFormsExample
                 //hx.target1 = sender as Control;
                 if (Control.ModifierKeys == Keys.Control)
                 {
-                    c.BackColor = Color.Yellow;
+                    if (!(c is TextBox))
+                    {
+                        c.BackColor = Color.Yellow;
+                    }
+                    
                     if (!selected_panel.Contains(c))
                     {
                         selected_panel.Add(c);
@@ -331,8 +371,11 @@ namespace WindowsFormsExample
                 {
                     x = e.X;
                     y = e.Y;
-                    
-                    c.BackColor = Color.Yellow;
+
+                    if (!(c is TextBox))
+                    {
+                        c.BackColor = Color.Yellow;
+                    }
 
                     if (!selected_panel.Contains(c))
                     {
@@ -439,6 +482,7 @@ namespace WindowsFormsExample
             foreach (Control selected in selected_panel)
             {
                 Control deselect = selected as Control;
+
                 deselect.BackColor = Color.Blue;
                 if (drag == false)
                 {
@@ -449,10 +493,11 @@ namespace WindowsFormsExample
             }
             drag = false;
             selected_panel.Clear();
-                //Point
-
-            
+            //Point
             selectionStart = e.Location;
+            this.textBox1.Focus();
+            //ActiveControl = null;
+            Console.WriteLine(ActiveControl);
         }
 
         private void Mypanel_KeyUp(object sender, KeyEventArgs e)
@@ -524,6 +569,7 @@ namespace WindowsFormsExample
             {
                 GetSelectedPanel();
             }
+            
         }
         private void GetSelectedPanel()
         {
@@ -876,15 +922,11 @@ namespace WindowsFormsExample
         {
            
                 Undo_json one = new Undo_json();
-
                 one.X = hx.local_x;
                 one.Y = hx.local_y;
                 one.T = hx.target1.Tag;
                 
                 undo_j.Add(one);
-            
-            
-            
         }
         
         public void Save_undo_Count()
@@ -934,6 +976,11 @@ namespace WindowsFormsExample
         }
 
         private void Mypanel_MouseMove(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
         {
 
         }
