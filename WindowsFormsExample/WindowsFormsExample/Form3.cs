@@ -620,14 +620,14 @@ namespace WindowsFormsExample
                     var cmd = new MySqlCommand("UPDATE json SET textJson=@textJson WHERE sender=@sender", conn);
                     cmd.Parameters.AddWithValue("@textJson", all);
                     cmd.Parameters.AddWithValue("@ip", ipv4);
-                    cmd.Parameters.AddWithValue("@sender", "mick");
+                    cmd.Parameters.AddWithValue("@sender", sender_name);
                     cmd.ExecuteNonQuery();
                     if (cmd.AffectedRows == 0) //no data
                     {
                         cmd = new MySqlCommand("INSERT INTO json(textJson, 	sender ,ip)VALUES(@textJson, @sender, @ip)", conn);
                         cmd.Parameters.AddWithValue("@textJson", all);
                         cmd.Parameters.AddWithValue("@ip", ipv4);
-                        cmd.Parameters.AddWithValue("@sender", "mick");
+                        cmd.Parameters.AddWithValue("@sender", sender_name);
                         cmd.ExecuteNonQuery();
                     }
                 }
