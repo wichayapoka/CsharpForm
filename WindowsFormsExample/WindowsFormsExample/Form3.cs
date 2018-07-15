@@ -11,10 +11,29 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
+using System.Net.Sockets;
+using SharpConnect.MySql;
+using SharpConnect.MySql.SyncPatt;
+
 namespace WindowsFormsExample
 {
     public partial class Form3 : Form
     {
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    Console.WriteLine(ip.ToString());
+                    return ip.ToString();
+
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
+        string ipv4;
         List<Control> selected = new List<Control>();
         public Form3()
         {
@@ -22,7 +41,7 @@ namespace WindowsFormsExample
             InitializeComponent();
             this.ActiveControl = NumofPanel;
             Time.Checked = true;
-            
+            ipv4 = GetLocalIPAddress();
         }
         
         public class Blue
@@ -36,7 +55,14 @@ namespace WindowsFormsExample
             public string Text = null;
         }
         List<Blue> p = new List<Blue>();
-
+        static MySqlConnectionString GetMySqlConnString()
+        {
+            string h = "127.0.0.1";
+            string u = "root";
+            string p = "";
+            string d = "panel";
+            return new MySqlConnectionString(h, u, p, d);
+        }
         private void Set_Panel(object sender, EventArgs e)
         {
             if (mypanel1.Undo_timer.Enabled) { return; }
@@ -130,26 +156,10 @@ namespace WindowsFormsExample
 
             }
             mypanel1.Save_undo_Count();
-            
-            //uploadstring
-            using (StreamReader fs1 = new StreamReader("SavePanel.json"))
-            using (StreamReader fs2 = new StreamReader("History.json"))
-            using (StreamReader fs3 = new StreamReader("ListCountHistory.json"))
-            {
-                string json1 = fs1.ReadToEnd();
-                string json2 = fs2.ReadToEnd();
-                string json3 = fs3.ReadToEnd();
-                string all = json1 + "|" + json2 + "|" + json3;
-                WebClient wb = new WebClient();
-
-
-                //string result = wb.UploadString("http://localhost:8081/Undo_Data/post", all);
-                string result = wb.UploadString("http://10.80.119.175:8081/Undo_Data/Panel_Data", all);
-                MessageBox.Show("Save success");
-            }
             mypanel1.Focus_panel();
             p.Clear();
             
+
 
         }
         
@@ -403,15 +413,50 @@ namespace WindowsFormsExample
         private void Load_server_Click(object sender, EventArgs e)
         {
             if (mypanel1.Undo_timer.Enabled) { return; }
-            WebClient wb = new WebClient();
-            //string result = wb.DownloadString("http://localhost:8081/Undo_Data/post");
-            string result = wb.DownloadString("http://10.80.119.175:8081/Undo_Data/Panel_Data");
-            if (result == "No Data")
+            Console.WriteLine(Name_ip.SelectedItem);
+            int count = Name_ip.Items.Count;
+            if (Name_ip.SelectedItem == null) //
             {
-                MessageBox.Show("No data from a server.");
+                MessageBox.Show("Please select name and ip to load data.");
                 return;
             }
-            string[] Data = result.Split("|".ToCharArray());
+            string name = (string)Name_ip.SelectedItem;
+            string[] name_only = name.Split(null);
+            //WebClient wb = new WebClient();
+            
+            //string result = wb.DownloadString("http://localhost:8081/Undo_Data/post");
+            //string result = wb.DownloadString("http://"+ ipv4 +":8081/Undo_Data/Panel_Data");
+
+            MySqlConnectionString connStr = GetMySqlConnString();
+            var conn = new MySqlConnection(connStr);
+            conn.UseConnectionPool = true;
+            conn.Open();
+            MySqlDataReader data;
+            MySqlCommand cmd = new MySqlCommand("SELECT textJson FROM json WHERE sender=@sender", conn);
+            cmd.Parameters.AddWithValue("@sender", name_only[0]);
+            data = cmd.ExecuteReader();
+            string main = "";
+            while (data.Read())
+            {
+                main = data.GetString("textJson");
+                
+            }
+            if (main == "")
+            {
+                MessageBox.Show("No data from server.");
+                return;
+            }
+            string[] Data = main.Split("|".ToCharArray());
+
+            //if (result == "No Data")
+            //{
+            //    MessageBox.Show("No data from a server.");
+            //    return;
+            //}
+            //string[] Data = result.Split("|".ToCharArray());
+
+            data.Close();
+            conn.Close();
             JArray Blue_Panel = JArray.Parse(Data[0]);
             JArray History = JArray.Parse(Data[1]);
             JArray ListCount = JArray.Parse(Data[2]);
@@ -503,6 +548,28 @@ namespace WindowsFormsExample
         private void Form3_Load(object sender, EventArgs e)
         {
             Time_or_speed.Text = "1"; //default 1 second time
+            MySqlConnectionString connStr = GetMySqlConnString();
+            var conn = new MySqlConnection(connStr);
+            conn.UseConnectionPool = true;
+            conn.Open();
+            try
+            {
+                MySqlDataReader data;
+                MySqlCommand cmd = new MySqlCommand("SELECT sender, ip FROM json", conn);
+                data = cmd.ExecuteReader();
+                
+                while (data.Read())
+                {
+                    string name = data.GetString("sender");
+                    string ip = data.GetString("ip");
+                    Name_ip.Items.Add(name + "  " + ip);
+                }
+                data.Close();
+            } catch (Exception)
+            {
+                
+            }
+            conn.Close();
         }
         int createTextbox_count = 0;
 
@@ -518,8 +585,153 @@ namespace WindowsFormsExample
             //if (mypanel1.Controls.Count == 0) { MessageBox.Show("Please set panel first."); return; }
             mypanel1.ImportPictureBox();
         }
-        
-        
+
+        private void Load_from_name_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Save_Server(object sender, EventArgs e)
+        {
+            //save with
+            if (string.IsNullOrEmpty(sender_name.Text))
+            {
+                MessageBox.Show("Please input your name");
+                this.ActiveControl = sender_name;
+                return;
+            }
+            Save_Click(sender, e);
+            if (this.mypanel1.Controls.Count == 1) { return; }
+            using (StreamReader fs1 = new StreamReader("SavePanel.json"))
+            using (StreamReader fs2 = new StreamReader("History.json"))
+            using (StreamReader fs3 = new StreamReader("ListCountHistory.json")) 
+            {
+                string json1 = fs1.ReadToEnd();
+                string json2 = fs2.ReadToEnd();
+                string json3 = fs3.ReadToEnd();
+                string all = json1 + "|" + json2 + "|" + json3;
+                WebClient wb = new WebClient();
+                MySqlConnectionString connStr = GetMySqlConnString();
+                var conn = new MySqlConnection(connStr);
+                conn.UseConnectionPool = true;
+                conn.Open();
+                try
+                {
+                    var cmd = new MySqlCommand("UPDATE json SET textJson=@textJson WHERE sender=@sender", conn);
+                    cmd.Parameters.AddWithValue("@textJson", all);
+                    cmd.Parameters.AddWithValue("@ip", ipv4);
+                    cmd.Parameters.AddWithValue("@sender", "mick");
+                    cmd.ExecuteNonQuery();
+                    if (cmd.AffectedRows == 0) //no data
+                    {
+                        cmd = new MySqlCommand("INSERT INTO json(textJson, 	sender ,ip)VALUES(@textJson, @sender, @ip)", conn);
+                        cmd.Parameters.AddWithValue("@textJson", all);
+                        cmd.Parameters.AddWithValue("@ip", ipv4);
+                        cmd.Parameters.AddWithValue("@sender", "mick");
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception) { }
+
+                conn.Close();
+
+                
+                //string result = wb.UploadString("http://" + ipv4 + ":8081/Undo_Data/Panel_Data", all);
+                MessageBox.Show("Save success");
+            }
+            mypanel1.Focus_panel();
+            p.Clear();
+        }
+
+        private void Name_ip_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void Add_name_ip(object sender, EventArgs e)
+        {
+            bool update = false; //same name, different ip
+            string name, ip;
+            //check input
+            if (string.IsNullOrWhiteSpace(add_name.Text) || string.IsNullOrWhiteSpace(add_ip.Text))
+            {
+                MessageBox.Show("Please input both name and ip");
+                this.ActiveControl = add_name;
+                return;
+            }
+            name = add_name.Text;
+            ip = add_ip.Text;
+            string[] splitValues = ip.Split('.');
+            //check ip format
+            if (splitValues.Length != 4)
+            {
+                MessageBox.Show("Please input ip in the correct format");
+                this.ActiveControl = add_ip;
+                return;
+            }
+            int count = Name_ip.Items.Count;
+            //check name
+            for (int i = 0; i < count; i++)
+            {
+                string name_check = (string)Name_ip.Items[i];
+                string[] aaa = name_check.Split(null);
+                if (name == aaa[0])
+                {
+                    DialogResult dialogResult = MessageBox.Show("Are you sure to replace IP Address?", "Name is already exist!", MessageBoxButtons.YesNo);
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        Name_ip.Items.RemoveAt(i);
+                        update = true;
+                        break;
+                    }
+                    else if (dialogResult == DialogResult.No)
+                    {
+                        
+                        return;
+                    }
+                    
+                    return;
+                }
+            }
+            //add ip and name
+            MySqlConnectionString connStr = GetMySqlConnString();
+            var conn = new MySqlConnection(connStr);
+            conn.UseConnectionPool = true;
+            conn.Open();
+            try
+            {
+                if (update == false)
+                {
+                    var cmd = new MySqlCommand("INSERT INTO json(sender, ip) VALUE (@sender, @ip)", conn);
+                    cmd.Parameters.AddWithValue("@sender", name);
+                    cmd.Parameters.AddWithValue("@ip", ip);
+                    cmd.ExecuteNonQuery();
+                    Name_ip.Items.Add(name + ip);
+                } else
+                {
+                    var cmd = new MySqlCommand("UPDATE json SET ip=@ip WHERE sender=@sender", conn);
+                    cmd.Parameters.AddWithValue("@sender", name);
+                    cmd.Parameters.AddWithValue("@ip", ip);
+                    cmd.ExecuteNonQuery();
+                    Name_ip.Items.Clear();
+                    Form3_Load(sender, e); //listbox
+                }
+            } catch
+            {
+                MessageBox.Show("Error");
+            }
+            conn.Close();
+        }
+
+        private void add_ip_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void sender_name_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
     
 }
