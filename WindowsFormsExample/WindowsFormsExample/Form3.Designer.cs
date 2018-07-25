@@ -119,9 +119,10 @@
             // 
             // Time_or_speed
             // 
-            this.Time_or_speed.Location = new System.Drawing.Point(12, 61);
+            this.Time_or_speed.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.Time_or_speed.Location = new System.Drawing.Point(12, 57);
             this.Time_or_speed.Name = "Time_or_speed";
-            this.Time_or_speed.Size = new System.Drawing.Size(111, 22);
+            this.Time_or_speed.Size = new System.Drawing.Size(111, 30);
             this.Time_or_speed.TabIndex = 3;
             this.Time_or_speed.TextChanged += new System.EventHandler(this.Time_input_TextChanged);
             this.Time_or_speed.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Time_input_KeyPress);
@@ -156,7 +157,7 @@
             // button2
             // 
             this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.Location = new System.Drawing.Point(355, 52);
+            this.button2.Location = new System.Drawing.Point(346, 52);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(92, 35);
             this.button2.TabIndex = 9;
@@ -178,7 +179,7 @@
             // Add_textbox
             // 
             this.Add_textbox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.Add_textbox.Location = new System.Drawing.Point(453, 52);
+            this.Add_textbox.Location = new System.Drawing.Point(510, 52);
             this.Add_textbox.Name = "Add_textbox";
             this.Add_textbox.Size = new System.Drawing.Size(139, 35);
             this.Add_textbox.TabIndex = 13;
@@ -267,11 +268,12 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(794, 441);
+            this.label2.Location = new System.Drawing.Point(803, 446);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(168, 17);
+            this.label2.Size = new System.Drawing.Size(77, 17);
             this.label2.TabIndex = 23;
-            this.label2.Text = "Save with your own name";
+            this.label2.Text = "Your name";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // sender_name
             // 

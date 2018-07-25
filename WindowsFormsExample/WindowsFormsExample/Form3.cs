@@ -310,9 +310,6 @@ namespace WindowsFormsExample
             //this.Text = "Clear";
             
         }
-
-        
-
         private void Time_CheckedChanged(object sender, EventArgs e)
         {
             
@@ -346,9 +343,7 @@ namespace WindowsFormsExample
 
         private void Time_input_TextChanged(object sender, EventArgs e)
         {
-            //Size size = TextRenderer.MeasureText(Time_or_speed.Text, Time_or_speed.Font);
-            //Time_or_speed.Width = size.Width;
-            //Time_or_speed.Height = size.Height;
+            
         }
 
         private void Time_input_KeyPress(object sender, KeyPressEventArgs e)
@@ -422,9 +417,9 @@ namespace WindowsFormsExample
             }
             string name = (string)Name_ip.SelectedItem;
             string[] name_only = name.Split(null);
-            //WebClient wb = new WebClient();
+            WebClient wb = new WebClient();
             
-            //string result = wb.DownloadString("http://localhost:8081/Undo_Data/post");
+            //string result = wb.DownloadString("http://localhost:8080/Undo_Data/Panel_Data");
             //string result = wb.DownloadString("http://"+ ipv4 +":8081/Undo_Data/Panel_Data");
 
             MySqlConnectionString connStr = GetMySqlConnString();
@@ -600,7 +595,7 @@ namespace WindowsFormsExample
                 this.ActiveControl = sender_name;
                 return;
             }
-            Save_Click(sender, e);
+            Save_Click(sender, e); //save to local
             if (this.mypanel1.Controls.Count == 1) { return; }
             using (StreamReader fs1 = new StreamReader("SavePanel.json"))
             using (StreamReader fs2 = new StreamReader("History.json"))
@@ -677,7 +672,7 @@ namespace WindowsFormsExample
                 string[] aaa = name_check.Split(null);
                 if (name == aaa[0])
                 {
-                    DialogResult dialogResult = MessageBox.Show("Are you sure to replace IP Address?", "Name is already exist!", MessageBoxButtons.YesNo);
+                    DialogResult dialogResult = MessageBox.Show("Are you sure to replace IP Address?", "This name is already exist!", MessageBoxButtons.YesNo);
                     if (dialogResult == DialogResult.Yes)
                     {
                         Name_ip.Items.RemoveAt(i);
@@ -729,6 +724,11 @@ namespace WindowsFormsExample
         }
 
         private void sender_name_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
         {
 
         }

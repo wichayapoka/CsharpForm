@@ -503,25 +503,7 @@ namespace WindowsFormsExample
         private void Mypanel_KeyUp(object sender, KeyEventArgs e)
         {
             this.Focus();
-            /*Queue<string> queue = new Queue<string>();
-            queue.Enqueue("1");
-            queue.Enqueue("2");
-            queue.Enqueue("3");
-
-            while (queue.Count > 0)
-            {
-                MessageBox.Show(queue.Dequeue());
-            }
-            Stack<string> stack = new Stack<string>();
-            stack.Push("1");
-            stack.Push("2");
-            stack.Push("3");
-            stack.
-
-            while (stack.Count > 0)
-            {
-                MessageBox.Show(stack.Pop());
-            }*/
+            
         }
 
         private void Mypanel_MouseUp(object sender, MouseEventArgs e)
@@ -772,29 +754,29 @@ namespace WindowsFormsExample
 
                                 for (int i = 0; i < select_count[select_count.Count - 1]; i++)
                                 {
-                                    //
+                                    // move by pixel
                                     int x = history_undo[history_undo.Count - 1 - i].target1.Left + (history_undo[history_undo.Count - 1 - i].local_x - history_undo[history_undo.Count - 1 - i].target1.Left) * step / steps;
                                     int y = history_undo[history_undo.Count - 1 - i].target1.Top + (history_undo[history_undo.Count - 1 - i].local_y - history_undo[history_undo.Count - 1 - i].target1.Top) * step / steps;
 
                                     if (history_undo[history_undo.Count - 1 - i].target1.Left > history_undo[history_undo.Count - 1 - i].local_x) //current position and history
                                     {
 
-                                        //history_undo[history_undo.Count - 1 - i].target1.Left -= moving_speed_x;
+                                        
                                         history_undo[history_undo.Count - 1 - i].target1.Left = x;
                                     }
                                     if (history_undo[history_undo.Count - 1 - i].target1.Top > history_undo[history_undo.Count - 1 - i].local_y)
                                     {
-                                        //history_undo[history_undo.Count - 1 - i].target1.Top -= moving_speed_y;
+                                        
                                         history_undo[history_undo.Count - 1 - i].target1.Top = y;
                                     }
                                     if (history_undo[history_undo.Count - 1 - i].target1.Left < history_undo[history_undo.Count - 1 - i].local_x)
                                     {
-                                        //history_undo[history_undo.Count - 1 - i].target1.Left += moving_speed_x;
+                                        
                                         history_undo[history_undo.Count - 1 - i].target1.Left = x;
                                     }
                                     if (history_undo[history_undo.Count - 1 - i].target1.Top < history_undo[history_undo.Count - 1 - i].local_y)
                                     {
-                                        //history_undo[history_undo.Count - 1 - i].target1.Top += moving_speed_y;
+                                        
                                         history_undo[history_undo.Count - 1 - i].target1.Top = y;
                                     }
                                     //scrap
@@ -810,7 +792,7 @@ namespace WindowsFormsExample
 
                             }
                             else
-                            { //finish
+                            {   //finish
                                 Undo_timer.Enabled = false;
 
                                 for (int i = 0; i < select_count[select_count.Count - 1]; i++)
@@ -899,7 +881,7 @@ namespace WindowsFormsExample
                                 select_count_r.Add(select_count[select_count.Count - 1]); // redo multiple panel
                                 select_count.RemoveAt(select_count.Count - 1); // undo multiple panel
                                 
-                                //Set_Speed(fixed_number);
+                                
                                 return;
 
                             }
